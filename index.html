@@ -72,7 +72,7 @@
             to { opacity: 1; transform: translateY(0);}
         }
 
-        /* ========= 识数专用样式 ========= */
+        /* ========= 识数专用样式 (所有图形纯色不透明) ========= */
         .shapes-box {
             display: grid;
             justify-content: center;
@@ -89,96 +89,96 @@
             justify-content: center;
             box-shadow: 0 3px 5px #0002;
         }
-        .circle {
+        /* 圆形 - 纯紫色 */
+        .shape-circle {
             background: #6c5ce7;
             border-radius: 50%;
             width: 100%;
             height: 100%;
         }
-        .square {
-            background: #fdcb6e;
+        /* 正方形 - 纯橙色 */
+        .shape-square {
+            background: #f39c12;
             border-radius: 12px;
             width: 100%;
             height: 100%;
         }
-        .triangle {
+        /* 三角形 - 修复：使用 clip-path 实现 */
+        .shape-triangle {
+            background: #009432;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            width: 100%;
+            height: 100%;
+        }
+        /* 星形 - 粉色 */
+        .shape-star {
+            background: #fd79a8;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            width: 100%;
+            height: 100%;
+        }
+        /* 心形 - 红色 */
+        .shape-heart {
+            background: #ff6b6b;
+            clip-path: path("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z");
+            width: 100%;
+            height: 100%;
+        }
+        /* 菱形 - 青绿色 */
+        .shape-diamond {
+            background: #4ecdc4;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            width: 100%;
+            height: 100%;
+        }
+        /* 五边形 - 金色 */
+        .shape-pentagon {
+            background: #f9ca24;
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+            width: 100%;
+            height: 100%;
+        }
+        /* 六边形 - 亮蓝色 */
+        .shape-hexagon {
+            background: #48dbfb;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            width: 100%;
+            height: 100%;
+        }
+        /* 云朵 - 缩小并居中，旋转90度，避免重叠 */
+        .shape-cloud {
             width: 100%;
             height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .triangle-inner {
-            width: 0;
-            height: 0;
-            border-left: 50% solid transparent;
-            border-right: 50% solid transparent;
-            border-bottom: 100% solid #00b894;
-        }
-        .star {
-            background: #fd79a8;
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            width: 100%;
-            height: 100%;
-        }
-        .heart {
-            background: #ff6b6b;
-            clip-path: path("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z");
-            width: 100%;
-            height: 100%;
-        }
-        .diamond {
-            background: #4ecdc4;
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-            width: 100%;
-            height: 100%;
-        }
-        .pentagon {
-            background: #f9ca24;
-            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-            width: 100%;
-            height: 100%;
-        }
-        .hexagon {
-            background: #48dbfb;
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            width: 100%;
-            height: 100%;
-        }
-        .cloud {
-            background: #dfe6e9;
+        .cloud-inner {
+            background: #74b9ff;
             border-radius: 50%;
             position: relative;
-            box-shadow: none;
-            width: 100%;
-            height: 100%;
+            width: 70%;
+            height: 70%;
+            transform: rotate(90deg);
         }
-        .cloud::before,
-        .cloud::after {
+        .cloud-inner::before,
+        .cloud-inner::after {
             content: '';
             position: absolute;
-            background: #dfe6e9;
+            background: #74b9ff;
             border-radius: 50%;
         }
-        .cloud::before {
+        .cloud-inner::before {
             width: 70%;
             height: 70%;
             top: -35%;
             left: 10%;
         }
-        .cloud::after {
+        .cloud-inner::after {
             width: 50%;
             height: 50%;
             top: -25%;
             right: 10%;
-        }
-        .moon {
-            background: #feca57;
-            border-radius: 50%;
-            box-shadow: inset -4px -4px 0 #e1b12c;
-            transform: rotate(20deg);
-            width: 100%;
-            height: 100%;
         }
 
         /* ========= 算数专用样式 ========= */
@@ -682,7 +682,8 @@
     class CountGame {
         constructor() {
             this.totalShapes = 3; this.currentShape = 'circle'; this.colsPerRow = 5;
-            this.shapeTypes = ['circle','triangle','square','star','heart','diamond','pentagon','hexagon','cloud','moon'];
+            // 图形列表（删除月亮，保留云朵）
+            this.shapeTypes = ['circle','triangle','square','star','heart','diamond','pentagon','hexagon','cloud'];
             this.layoutOptions = [2,5,10];
             this.isQuizMode = false; this.quizCount = 0; this.correctCount = 0; this.startTime = 0; this.timerInterval = null;
             this.isChecking = false; this.dataSent = false; this.currentAnswer = ''; this.studentClass = ''; this.studentName = '';
@@ -714,49 +715,17 @@
         getDynamicSize() { let size=42,gap=10; if(this.colsPerRow===10){size=26;gap=4;}else if(this.colsPerRow===5){size=40;gap=8;}else if(this.colsPerRow===2){size=30;gap=5;} return {size,gap};}
         createShapeElement(type,size) {
             const div = document.createElement('div');
-            div.classList.add('shape', type);
+            div.classList.add('shape');
             div.style.width = `${size}px`;
             div.style.height = `${size}px`;
-            if (type === 'triangle') {
+            if (type === 'cloud') {
+                // 云朵使用内部结构以支持缩放
+                div.classList.add('shape-cloud');
                 const inner = document.createElement('div');
-                inner.className = 'triangle-inner';
+                inner.className = 'cloud-inner';
                 div.appendChild(inner);
-            } else if (type === 'circle') {
-                const inner = document.createElement('div');
-                inner.className = 'circle';
-                div.appendChild(inner);
-            } else if (type === 'square') {
-                const inner = document.createElement('div');
-                inner.className = 'square';
-                div.appendChild(inner);
-            } else if (type === 'star') {
-                const inner = document.createElement('div');
-                inner.className = 'star';
-                div.appendChild(inner);
-            } else if (type === 'heart') {
-                const inner = document.createElement('div');
-                inner.className = 'heart';
-                div.appendChild(inner);
-            } else if (type === 'diamond') {
-                const inner = document.createElement('div');
-                inner.className = 'diamond';
-                div.appendChild(inner);
-            } else if (type === 'pentagon') {
-                const inner = document.createElement('div');
-                inner.className = 'pentagon';
-                div.appendChild(inner);
-            } else if (type === 'hexagon') {
-                const inner = document.createElement('div');
-                inner.className = 'hexagon';
-                div.appendChild(inner);
-            } else if (type === 'cloud') {
-                const inner = document.createElement('div');
-                inner.className = 'cloud';
-                div.appendChild(inner);
-            } else if (type === 'moon') {
-                const inner = document.createElement('div');
-                inner.className = 'moon';
-                div.appendChild(inner);
+            } else {
+                div.classList.add(`shape-${type}`);
             }
             return div;
         }
