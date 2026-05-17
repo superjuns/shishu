@@ -89,63 +89,63 @@
             justify-content: center;
             box-shadow: 0 3px 5px #0002;
         }
-        /* 圆形 - 纯紫色 */
+        /* 圆形 */
         .shape-circle {
             background: #6c5ce7;
             border-radius: 50%;
             width: 100%;
             height: 100%;
         }
-        /* 正方形 - 纯橙色 */
+        /* 正方形 */
         .shape-square {
             background: #f39c12;
             border-radius: 12px;
             width: 100%;
             height: 100%;
         }
-        /* 三角形 - 修复：使用 clip-path 实现 */
+        /* 三角形 - 使用clip-path */
         .shape-triangle {
             background: #009432;
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
             width: 100%;
             height: 100%;
         }
-        /* 星形 - 粉色 */
+        /* 星形 */
         .shape-star {
             background: #fd79a8;
             clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
             width: 100%;
             height: 100%;
         }
-        /* 心形 - 红色 */
+        /* 心形 */
         .shape-heart {
             background: #ff6b6b;
             clip-path: path("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z");
             width: 100%;
             height: 100%;
         }
-        /* 菱形 - 青绿色 */
+        /* 菱形 */
         .shape-diamond {
             background: #4ecdc4;
             clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
             width: 100%;
             height: 100%;
         }
-        /* 五边形 - 金色 */
+        /* 五边形 */
         .shape-pentagon {
             background: #f9ca24;
             clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
             width: 100%;
             height: 100%;
         }
-        /* 六边形 - 亮蓝色 */
+        /* 六边形 */
         .shape-hexagon {
             background: #48dbfb;
             clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
             width: 100%;
             height: 100%;
         }
-        /* 云朵 - 缩小并居中，旋转90度，避免重叠 */
+        /* 云朵 - 缩小居中，旋转90度 */
         .shape-cloud {
             width: 100%;
             height: 100%;
@@ -624,6 +624,24 @@
     const studentNameInput = document.getElementById('globalStudentName');
     const confirmQuizBtn = document.getElementById('globalConfirmQuizBtn');
     let activeGameType = 'count';
+    let rankAutoRefreshTimer = null;  // 排行榜自动刷新定时器
+
+    // 启动/停止排行榜自动刷新
+    function startRankAutoRefresh() {
+        if (rankAutoRefreshTimer) clearInterval(rankAutoRefreshTimer);
+        rankAutoRefreshTimer = setInterval(() => {
+            // 答题模式下不刷新，避免卡顿
+            if (!window.countGame?.isQuizMode && !window.arithmeticGame?.isQuizMode) {
+                refreshGlobalRankAndMyCard(activeGameType);
+            }
+        }, 20000);
+    }
+    function stopRankAutoRefresh() {
+        if (rankAutoRefreshTimer) {
+            clearInterval(rankAutoRefreshTimer);
+            rankAutoRefreshTimer = null;
+        }
+    }
 
     function showModalForGame(callback) {
         studentNameInput.value = '';
@@ -682,7 +700,6 @@
     class CountGame {
         constructor() {
             this.totalShapes = 3; this.currentShape = 'circle'; this.colsPerRow = 5;
-            // 图形列表（删除月亮，保留云朵）
             this.shapeTypes = ['circle','triangle','square','star','heart','diamond','pentagon','hexagon','cloud'];
             this.layoutOptions = [2,5,10];
             this.isQuizMode = false; this.quizCount = 0; this.correctCount = 0; this.startTime = 0; this.timerInterval = null;
@@ -719,7 +736,6 @@
             div.style.width = `${size}px`;
             div.style.height = `${size}px`;
             if (type === 'cloud') {
-                // 云朵使用内部结构以支持缩放
                 div.classList.add('shape-cloud');
                 const inner = document.createElement('div');
                 inner.className = 'cloud-inner';
@@ -744,9 +760,26 @@
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
         startTimer(){ this.clearTimer(); this.startTime=Date.now(); this.updateTimerDisplay(); this.timerInterval=setInterval(()=>{ if(this.isQuizMode) this.updateTimerDisplay(); else this.clearTimer(); },1000); }
         showStartModal() { showModalForGame((cls,name)=>{ this.studentClass=cls; this.studentName=name; this.startQuizMode(); }); }
-        startQuizMode(){ if(this.isQuizMode) return; this.isQuizMode=true; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false; this.clearTimer(); this.isChecking=false; this.quizPanel.style.display='flex'; this.startTimer(); this.nextQuestion(); }
+        startQuizMode(){ 
+            if(this.isQuizMode) return;
+            // 答题模式开始：停止排行榜自动刷新
+            stopRankAutoRefresh();
+            this.isQuizMode=true; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false;
+            this.clearTimer(); this.isChecking=false; this.quizPanel.style.display='flex'; this.startTimer(); this.nextQuestion();
+        }
         nextQuestion(){ if(!this.isQuizMode) return; this.quizCount++; if(this.quizCount>5){ this.finishQuiz(); return; } this.progressSpan.innerText=`📋 第${this.quizCount}/5题`; this.generateRandomGame(); this.clearAnswer(); this.resultDiv.innerHTML=''; this.resultDiv.className='result'; this.isChecking=false; }
-        finishQuiz(){ this.clearTimer(); let totalSec=this.startTime?Math.floor((Date.now()-this.startTime)/1000):0; this.sendResult(totalSec); let msg=`${this.studentName}（${this.studentClass}）答对 ${this.correctCount}/5 题，用时 ${totalSec} 秒`; if(this.correctCount===5) msg=`🎉🎉 ${this.studentName}（${this.studentClass}）全对！ 用时 ${totalSec} 秒 🎉🎉`; this.resultDiv.innerHTML=msg; this.resultDiv.className='result correct'; this.isQuizMode=false; this.quizPanel.style.display='none'; this.quizCount=0; this.correctCount=0; this.startTime=0; this.generateRandomGame(); this.clearAnswer(); setTimeout(()=>{ if(this.resultDiv.innerHTML===msg) this.resultDiv.innerHTML='';},4000); if(this.onQuizFinish) this.onQuizFinish({correct:this.correctCount, totalTime:totalSec}); }
+        finishQuiz(){ 
+            this.clearTimer(); let totalSec=this.startTime?Math.floor((Date.now()-this.startTime)/1000):0; this.sendResult(totalSec); 
+            let msg=`${this.studentName}（${this.studentClass}）答对 ${this.correctCount}/5 题，用时 ${totalSec} 秒`; if(this.correctCount===5) msg=`🎉🎉 ${this.studentName}（${this.studentClass}）全对！ 用时 ${totalSec} 秒 🎉🎉`; 
+            this.resultDiv.innerHTML=msg; this.resultDiv.className='result correct'; 
+            this.isQuizMode=false; this.quizPanel.style.display='none'; this.quizCount=0; this.correctCount=0; this.startTime=0; 
+            this.generateRandomGame(); this.clearAnswer(); 
+            setTimeout(()=>{ if(this.resultDiv.innerHTML===msg) this.resultDiv.innerHTML='';},4000); 
+            if(this.onQuizFinish) this.onQuizFinish({correct:this.correctCount, totalTime:totalSec});
+            // 答题模式结束：恢复排行榜自动刷新
+            startRankAutoRefresh();
+            refreshGlobalRankAndMyCard(activeGameType);
+        }
         async sendResult(seconds){ if(this.dataSent || !this.studentClass) return; try{ await fetch(this.SUBMIT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({className:this.studentClass,studentName:this.studentName,correctAnswers:this.correctCount,totalTimeSeconds:seconds,totalQuestions:5})}); this.dataSent=true; if(activeGameType==='count') refreshGlobalRankAndMyCard('count'); } catch(e){} }
         checkAnswer(){ if(this.isChecking) return; let val=this.getCurrentNumber(); if(isNaN(val)){ if(!this.isQuizMode){ this.resultDiv.innerHTML='🐣 输入数字答案！'; this.resultDiv.className='result wrong'; setTimeout(()=>{ if(this.resultDiv.innerHTML==='🐣 输入数字答案！') this.resultDiv.innerHTML='';},1000);} else { this.isChecking=true; this.nextQuestion(); setTimeout(()=>{this.isChecking=false;},200);} return; }
         let isCorrect=(val===this.totalShapes); if(this.isQuizMode){ this.isChecking=true; if(isCorrect) this.correctCount++; this.nextQuestion(); setTimeout(()=>{this.isChecking=false;},200); return; }
@@ -809,9 +842,24 @@
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
         startTimer(){ this.clearTimer(); this.startTime=Date.now(); this.updateTimerDisplay(); this.timerInterval=setInterval(()=>{ if(this.isQuizMode) this.updateTimerDisplay(); else this.clearTimer(); },1000); }
         showStartModal(){ showModalForGame((cls,name)=>{ this.studentClass=cls; this.studentName=name; this.startQuizMode(); }); }
-        startQuizMode(){ if(this.isQuizMode) return; this.isQuizMode=true; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false; this.clearTimer(); this.quizPanel.style.display='flex'; this.startTimer(); this.nextQuestion(); }
+        startQuizMode(){ 
+            if(this.isQuizMode) return;
+            stopRankAutoRefresh();  // 答题模式开始：停止排行榜自动刷新
+            this.isQuizMode=true; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false;
+            this.clearTimer(); this.quizPanel.style.display='flex'; this.startTimer(); this.nextQuestion();
+        }
         nextQuestion(){ if(!this.isQuizMode) return; this.quizCount++; if(this.quizCount>5){ this.finishQuiz(); return; } this.progressSpan.innerText=`📋 第${this.quizCount}/5题`; this.randomizeStyle(); this.generateRandomArithmetic(); this.renderCurrentQuestion(); this.clearAnswer(); this.resultDiv.innerHTML=''; this.isChecking=false; }
-        finishQuiz(){ this.clearTimer(); let totalSec=this.startTime?Math.floor((Date.now()-this.startTime)/1000):0; this.sendResult(totalSec); let msg=`${this.studentName}（${this.studentClass}）答对${this.correctCount}/5题，用时${totalSec}秒`; if(this.correctCount===5) msg=`🎉🎉 ${this.studentName}（${this.studentClass}）全对！ ${totalSec}秒 🎉🎉`; this.resultDiv.innerHTML=msg; this.resultDiv.className='result correct'; this.isQuizMode=false; this.quizPanel.style.display='none'; this.quizCount=0; this.correctCount=0; this.startTime=0; this.randomizeStyle(); this.generateRandomArithmetic(); this.renderCurrentQuestion(); this.clearAnswer(); setTimeout(()=>{ if(this.resultDiv.innerHTML===msg) this.resultDiv.innerHTML='';},4000); if(this.onQuizFinish) this.onQuizFinish({correct:this.correctCount, totalTime:totalSec}); }
+        finishQuiz(){ 
+            this.clearTimer(); let totalSec=this.startTime?Math.floor((Date.now()-this.startTime)/1000):0; this.sendResult(totalSec); 
+            let msg=`${this.studentName}（${this.studentClass}）答对${this.correctCount}/5题，用时${totalSec}秒`; if(this.correctCount===5) msg=`🎉🎉 ${this.studentName}（${this.studentClass}）全对！ ${totalSec}秒 🎉🎉`; 
+            this.resultDiv.innerHTML=msg; this.resultDiv.className='result correct'; 
+            this.isQuizMode=false; this.quizPanel.style.display='none'; this.quizCount=0; this.correctCount=0; this.startTime=0; 
+            this.randomizeStyle(); this.generateRandomArithmetic(); this.renderCurrentQuestion(); this.clearAnswer(); 
+            setTimeout(()=>{ if(this.resultDiv.innerHTML===msg) this.resultDiv.innerHTML='';},4000); 
+            if(this.onQuizFinish) this.onQuizFinish({correct:this.correctCount, totalTime:totalSec});
+            startRankAutoRefresh();  // 恢复自动刷新
+            refreshGlobalRankAndMyCard(activeGameType);
+        }
         async sendResult(seconds){ if(this.dataSent||!this.studentClass) return; try{ await fetch(this.SUBMIT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({className:this.studentClass,studentName:this.studentName,correctAnswers:this.correctCount,totalTimeSeconds:seconds,totalQuestions:5})}); this.dataSent=true; if(activeGameType==='arithmetic') refreshGlobalRankAndMyCard('arithmetic'); } catch(e){} }
         checkAnswer(){ if(this.isChecking) return; let val=this.getCurrentNumber(); if(isNaN(val)){ if(!this.isQuizMode){ this.resultDiv.innerHTML='🐣 输入数字！'; this.resultDiv.className='result wrong'; setTimeout(()=>{ if(this.resultDiv.innerHTML==='🐣 输入数字！') this.resultDiv.innerHTML='';},1000);} else { this.isChecking=true; this.nextQuestion(); setTimeout(()=>{this.isChecking=false;},200);} return; }
         let isCorrect=(val===this.correctAnswer); if(this.isQuizMode){ this.isChecking=true; if(isCorrect) this.correctCount++; this.nextQuestion(); setTimeout(()=>{this.isChecking=false;},200); return; }
@@ -828,7 +876,7 @@
     document.querySelectorAll('.tab-btn[data-game]').forEach(btn => btn.addEventListener('click', () => switchGame(btn.dataset.game)));
     document.getElementById('globalRankRefresh').onclick = () => refreshGlobalRankAndMyCard(activeGameType);
     switchGame('count');
-    setInterval(() => { refreshGlobalRankAndMyCard(activeGameType); }, 20000);
+    startRankAutoRefresh();   // 启动自动刷新（非答题模式时）
 </script>
 </body>
 </html>
