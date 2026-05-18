@@ -32,7 +32,7 @@
             backdrop-filter: blur(2px);
         }
 
-        /* 选项卡区域 - 暖色风格 */
+        /* 选项卡区域 */
         .tab-bar {
             display: flex;
             justify-content: center;
@@ -72,7 +72,7 @@
             to { opacity: 1; transform: translateY(0);}
         }
 
-        /* ========= 识数专用样式 (所有图形纯色不透明) ========= */
+        /* ========= 识数专用样式 ========= */
         .shapes-box {
             display: grid;
             justify-content: center;
@@ -89,97 +89,19 @@
             justify-content: center;
             box-shadow: 0 3px 5px #0002;
         }
-        /* 圆形 */
-        .shape-circle {
-            background: #6c5ce7;
-            border-radius: 50%;
-            width: 100%;
-            height: 100%;
-        }
-        /* 正方形 */
-        .shape-square {
-            background: #f39c12;
-            border-radius: 12px;
-            width: 100%;
-            height: 100%;
-        }
-        /* 三角形 - 使用clip-path */
-        .shape-triangle {
-            background: #009432;
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            width: 100%;
-            height: 100%;
-        }
-        /* 星形 */
-        .shape-star {
-            background: #fd79a8;
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            width: 100%;
-            height: 100%;
-        }
-        /* 心形 */
-        .shape-heart {
-            background: #ff6b6b;
-            clip-path: path("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z");
-            width: 100%;
-            height: 100%;
-        }
-        /* 菱形 */
-        .shape-diamond {
-            background: #4ecdc4;
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-            width: 100%;
-            height: 100%;
-        }
-        /* 五边形 */
-        .shape-pentagon {
-            background: #f9ca24;
-            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-            width: 100%;
-            height: 100%;
-        }
-        /* 六边形 */
-        .shape-hexagon {
-            background: #48dbfb;
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            width: 100%;
-            height: 100%;
-        }
-        /* 云朵 - 缩小居中，旋转90度 */
-        .shape-cloud {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .cloud-inner {
-            background: #74b9ff;
-            border-radius: 50%;
-            position: relative;
-            width: 70%;
-            height: 70%;
-            transform: rotate(90deg);
-        }
-        .cloud-inner::before,
-        .cloud-inner::after {
-            content: '';
-            position: absolute;
-            background: #74b9ff;
-            border-radius: 50%;
-        }
-        .cloud-inner::before {
-            width: 70%;
-            height: 70%;
-            top: -35%;
-            left: 10%;
-        }
-        .cloud-inner::after {
-            width: 50%;
-            height: 50%;
-            top: -25%;
-            right: 10%;
-        }
+        .shape-circle { background: #6c5ce7; border-radius: 50%; width: 100%; height: 100%; }
+        .shape-square { background: #f39c12; border-radius: 12px; width: 100%; height: 100%; }
+        .shape-triangle { background: #009432; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); width: 100%; height: 100%; }
+        .shape-star { background: #fd79a8; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); width: 100%; height: 100%; }
+        .shape-heart { background: #ff6b6b; clip-path: path("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"); width: 100%; height: 100%; }
+        .shape-diamond { background: #4ecdc4; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); width: 100%; height: 100%; }
+        .shape-pentagon { background: #f9ca24; clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); width: 100%; height: 100%; }
+        .shape-hexagon { background: #48dbfb; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); width: 100%; height: 100%; }
+        .shape-cloud { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .cloud-inner { background: #74b9ff; border-radius: 50%; position: relative; width: 70%; height: 70%; transform: rotate(90deg); }
+        .cloud-inner::before, .cloud-inner::after { content: ''; position: absolute; background: #74b9ff; border-radius: 50%; }
+        .cloud-inner::before { width: 70%; height: 70%; top: -35%; left: 10%; }
+        .cloud-inner::after { width: 50%; height: 50%; top: -25%; right: 10%; }
 
         /* ========= 算数专用样式 ========= */
         .math-visual {
@@ -241,36 +163,12 @@
             width: 100%;
             aspect-ratio: 1 / 1;
         }
-        .shape-circle, .extra-shape-circle {
-            width: 75%;
-            height: 75%;
-            border-radius: 50%;
-        }
-        .shape-square, .extra-shape-square {
-            width: 75%;
-            height: 75%;
-            border-radius: 20%;
-        }
-        .shape-star, .extra-shape-star {
-            width: 75%;
-            height: 75%;
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-        }
-        .shape-heart, .extra-shape-heart {
-            width: 75%;
-            height: 75%;
-            clip-path: path("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z");
-        }
-        .shape-diamond, .extra-shape-diamond {
-            width: 75%;
-            height: 75%;
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-        }
-        .shape-pentagon, .extra-shape-pentagon {
-            width: 75%;
-            height: 75%;
-            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-        }
+        .shape-circle, .extra-shape-circle { width: 75%; height: 75%; border-radius: 50%; }
+        .shape-square, .extra-shape-square { width: 75%; height: 75%; border-radius: 20%; }
+        .shape-star, .extra-shape-star { width: 75%; height: 75%; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+        .shape-heart, .extra-shape-heart { width: 75%; height: 75%; clip-path: path("M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"); }
+        .shape-diamond, .extra-shape-diamond { width: 75%; height: 75%; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+        .shape-pentagon, .extra-shape-pentagon { width: 75%; height: 75%; clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); }
         .plus-sign {
             font-size: 2rem;
             font-weight: bold;
@@ -624,13 +522,11 @@
     const studentNameInput = document.getElementById('globalStudentName');
     const confirmQuizBtn = document.getElementById('globalConfirmQuizBtn');
     let activeGameType = 'count';
-    let rankAutoRefreshTimer = null;  // 排行榜自动刷新定时器
+    let rankAutoRefreshTimer = null;
 
-    // 启动/停止排行榜自动刷新
     function startRankAutoRefresh() {
         if (rankAutoRefreshTimer) clearInterval(rankAutoRefreshTimer);
         rankAutoRefreshTimer = setInterval(() => {
-            // 答题模式下不刷新，避免卡顿
             if (!window.countGame?.isQuizMode && !window.arithmeticGame?.isQuizMode) {
                 refreshGlobalRankAndMyCard(activeGameType);
             }
@@ -661,7 +557,6 @@
     closeModalBtn.onclick = closeGlobalModal;
     globalModal.addEventListener('click', (e) => { if(e.target === globalModal) closeGlobalModal(); });
 
-    // 全局排行榜渲染函数
     function renderGlobalRank(rankList) {
         const row1 = document.getElementById('globalRankRow1'), row2 = document.getElementById('globalRankRow2');
         if (!rankList.length) { row1.innerHTML = '<div class="rank-empty">✨ 暂无学霸数据 ✨</div>'; row2.innerHTML = ''; return; }
@@ -684,7 +579,6 @@
         else if(gameType === 'arithmetic' && window.arithmeticGame) await window.arithmeticGame.updateGlobalRankAndMyCard();
     }
 
-    // 切换游戏
     function switchGame(type) {
         activeGameType = type;
         document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active-panel'));
@@ -704,6 +598,7 @@
             this.layoutOptions = [2,5,10];
             this.isQuizMode = false; this.quizCount = 0; this.correctCount = 0; this.startTime = 0; this.timerInterval = null;
             this.isChecking = false; this.dataSent = false; this.currentAnswer = ''; this.studentClass = ''; this.studentName = '';
+            this.autoSubmitTimer = null; // 自动提交定时器
             this.API_BASE = 'https://quickform.cn/api/zdtp3mphzo'; this.RANK_URL = this.API_BASE + '/all'; this.SUBMIT_URL = this.API_BASE;
             this.shapesBox = document.getElementById('countShapesBox'); this.answerDisplay = document.getElementById('countAnswerDisplay');
             this.resultDiv = document.getElementById('countResult'); this.timerDiv = document.getElementById('countTimer');
@@ -723,11 +618,44 @@
                 });
             });
         }
-        buildKeypad() { this.keypadGrid.innerHTML = ''; '1234567890'.split('').forEach(d => { let b = document.createElement('button'); b.textContent = d; b.classList.add('num-btn'); b.onclick = () => this.appendDigit(d); this.keypadGrid.appendChild(b); }); }
-        appendDigit(d) { if(this.currentAnswer.length>=2) return; if(this.currentAnswer==='' && d==='0') return; this.currentAnswer+=d; this.updateDisplay(); }
-        deleteDigit() { this.currentAnswer = this.currentAnswer.slice(0,-1); this.updateDisplay(); }
+        buildKeypad() { 
+            this.keypadGrid.innerHTML = ''; 
+            '1234567890'.split('').forEach(d => { 
+                let b = document.createElement('button'); 
+                b.textContent = d; 
+                b.classList.add('num-btn'); 
+                b.onclick = () => this.appendDigit(d); 
+                this.keypadGrid.appendChild(b); 
+            }); 
+        }
+        appendDigit(d) { 
+            if(this.currentAnswer.length>=2) return; 
+            if(this.currentAnswer==='' && d==='0') return; 
+            this.currentAnswer+=d; 
+            this.updateDisplay();
+            // 清除之前的自动提交定时器
+            if(this.autoSubmitTimer) clearTimeout(this.autoSubmitTimer);
+            // 检查当前输入是否等于正确答案（完整输入且正确）
+            let currentNum = parseInt(this.currentAnswer, 10);
+            if (!isNaN(currentNum) && currentNum === this.totalShapes && !this.isChecking) {
+                // 延迟1秒自动提交
+                this.autoSubmitTimer = setTimeout(() => {
+                    this.checkAnswer();
+                    this.autoSubmitTimer = null;
+                }, 1000);
+            }
+        }
+        deleteDigit() { 
+            this.currentAnswer = this.currentAnswer.slice(0,-1); 
+            this.updateDisplay();
+            if(this.autoSubmitTimer) { clearTimeout(this.autoSubmitTimer); this.autoSubmitTimer = null; }
+        }
         updateDisplay() { this.answerDisplay.textContent = this.currentAnswer === '' ? '?' : this.currentAnswer; }
-        clearAnswer() { this.currentAnswer = ''; this.updateDisplay(); }
+        clearAnswer() { 
+            this.currentAnswer = ''; 
+            this.updateDisplay();
+            if(this.autoSubmitTimer) { clearTimeout(this.autoSubmitTimer); this.autoSubmitTimer = null; }
+        }
         getCurrentNumber() { return this.currentAnswer==='' ? NaN : parseInt(this.currentAnswer,10); }
         getDynamicSize() { let size=42,gap=10; if(this.colsPerRow===10){size=26;gap=4;}else if(this.colsPerRow===5){size=40;gap=8;}else if(this.colsPerRow===2){size=30;gap=5;} return {size,gap};}
         createShapeElement(type,size) {
@@ -754,7 +682,18 @@
             }
         }
         generateRandomGame() { this.totalShapes = Math.floor(Math.random()*48)+3; this.currentShape = this.shapeTypes[Math.floor(Math.random()*this.shapeTypes.length)]; this.renderMatrix(); this.clearAnswer(); }
-        resetGame() { if(this.isQuizMode){ this.isQuizMode=false; this.clearTimer(); this.quizPanel.style.display='none'; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false; } this.colsPerRow=5; this.generateRandomGame(); this.clearAnswer(); this.resultDiv.innerHTML='✨ 新的一局 ✨'; this.resultDiv.className='result correct'; setTimeout(()=>{ if(this.resultDiv.innerHTML==='✨ 新的一局 ✨') this.resultDiv.innerHTML='';},1500); this.quizPanel.style.display='none'; }
+        resetGame() { 
+            if(this.isQuizMode){ 
+                this.isQuizMode=false; this.clearTimer(); this.quizPanel.style.display='none'; 
+                this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false; 
+                startRankAutoRefresh();
+            } 
+            if(this.autoSubmitTimer) clearTimeout(this.autoSubmitTimer);
+            this.colsPerRow=5; this.generateRandomGame(); this.clearAnswer(); 
+            this.resultDiv.innerHTML='✨ 新的一局 ✨'; this.resultDiv.className='result correct'; 
+            setTimeout(()=>{ if(this.resultDiv.innerHTML==='✨ 新的一局 ✨') this.resultDiv.innerHTML='';},1500); 
+            this.quizPanel.style.display='none'; 
+        }
         changeLayout() { let idx=this.layoutOptions.indexOf(this.colsPerRow); if(idx===-1) idx=1; this.colsPerRow=this.layoutOptions[(idx+1)%this.layoutOptions.length]; this.renderMatrix(); this.resultDiv.innerHTML=`🎨 每行 ${this.colsPerRow} 个图形`; this.resultDiv.className='result correct'; setTimeout(()=>{ if(this.resultDiv.innerHTML.includes('每行')) this.resultDiv.innerHTML='';},1000); }
         clearTimer(){ if(this.timerInterval){ clearInterval(this.timerInterval); this.timerInterval=null; } }
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
@@ -762,7 +701,6 @@
         showStartModal() { showModalForGame((cls,name)=>{ this.studentClass=cls; this.studentName=name; this.startQuizMode(); }); }
         startQuizMode(){ 
             if(this.isQuizMode) return;
-            // 答题模式开始：停止排行榜自动刷新
             stopRankAutoRefresh();
             this.isQuizMode=true; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false;
             this.clearTimer(); this.isChecking=false; this.quizPanel.style.display='flex'; this.startTimer(); this.nextQuestion();
@@ -776,15 +714,52 @@
             this.generateRandomGame(); this.clearAnswer(); 
             setTimeout(()=>{ if(this.resultDiv.innerHTML===msg) this.resultDiv.innerHTML='';},4000); 
             if(this.onQuizFinish) this.onQuizFinish({correct:this.correctCount, totalTime:totalSec});
-            // 答题模式结束：恢复排行榜自动刷新
             startRankAutoRefresh();
             refreshGlobalRankAndMyCard(activeGameType);
         }
         async sendResult(seconds){ if(this.dataSent || !this.studentClass) return; try{ await fetch(this.SUBMIT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({className:this.studentClass,studentName:this.studentName,correctAnswers:this.correctCount,totalTimeSeconds:seconds,totalQuestions:5})}); this.dataSent=true; if(activeGameType==='count') refreshGlobalRankAndMyCard('count'); } catch(e){} }
-        checkAnswer(){ if(this.isChecking) return; let val=this.getCurrentNumber(); if(isNaN(val)){ if(!this.isQuizMode){ this.resultDiv.innerHTML='🐣 输入数字答案！'; this.resultDiv.className='result wrong'; setTimeout(()=>{ if(this.resultDiv.innerHTML==='🐣 输入数字答案！') this.resultDiv.innerHTML='';},1000);} else { this.isChecking=true; this.nextQuestion(); setTimeout(()=>{this.isChecking=false;},200);} return; }
-        let isCorrect=(val===this.totalShapes); if(this.isQuizMode){ this.isChecking=true; if(isCorrect) this.correctCount++; this.nextQuestion(); setTimeout(()=>{this.isChecking=false;},200); return; }
-        if(isCorrect){ this.resultDiv.innerHTML='🎉 ✅ 完全正确！ 🎉'; this.resultDiv.className='result correct'; this.clearAnswer(); setTimeout(()=>{ if(this.resultDiv.innerHTML.includes('完全正确')) this.resultDiv.innerHTML='';},1800);}
-        else{ this.resultDiv.innerHTML=`😭 答案是 ${this.totalShapes}，再数一遍！`; this.resultDiv.className='result wrong'; this.clearAnswer(); setTimeout(()=>{ if(this.resultDiv.innerHTML.includes('再数一遍')) this.resultDiv.innerHTML='';},2000);}
+        checkAnswer(){ 
+            if(this.isChecking) return; 
+            let val=this.getCurrentNumber(); 
+            if(isNaN(val)){ 
+                if(!this.isQuizMode){ 
+                    this.resultDiv.innerHTML='🐣 输入数字答案！'; this.resultDiv.className='result wrong'; 
+                    setTimeout(()=>{ if(this.resultDiv.innerHTML==='🐣 输入数字答案！') this.resultDiv.innerHTML='';},1000);
+                } else { 
+                    this.isChecking=true; this.nextQuestion(); setTimeout(()=>{this.isChecking=false;},200);
+                } 
+                return; 
+            }
+            let isCorrect=(val===this.totalShapes); 
+            if(this.isQuizMode){ 
+                this.isChecking=true; 
+                if(isCorrect) this.correctCount++; 
+                this.nextQuestion(); 
+                setTimeout(()=>{this.isChecking=false;},200); 
+                return; 
+            }
+            // 练习模式
+            if(isCorrect){ 
+                this.resultDiv.innerHTML='🎉 ✅ 完全正确！ 🎉'; 
+                this.resultDiv.className='result correct'; 
+                this.clearAnswer();
+                // 1秒后自动刷新题目
+                setTimeout(() => {
+                    if(!this.isQuizMode) {
+                        this.generateRandomGame();
+                        this.clearAnswer();
+                        this.resultDiv.innerHTML = '';
+                        this.resultDiv.className = 'result';
+                    }
+                }, 1000);
+            } else { 
+                this.resultDiv.innerHTML=`😭 答案是 ${this.totalShapes}，再数一遍！`; 
+                this.resultDiv.className='result wrong'; 
+                this.clearAnswer(); 
+                setTimeout(()=>{ 
+                    if(!this.isQuizMode && this.resultDiv.innerHTML.includes('再数一遍')) this.resultDiv.innerHTML='';
+                }, 2000);
+            }
         }
         async fetchRankingData(){ try{ let res=await fetch(this.RANK_URL,{cache:'no-cache'}); if(!res.ok)return[]; let data=await res.json(); let subs=data.submissions||[]; let map=new Map(); subs.forEach(s=>{ let key=`${s.className||'未知'}|${s.studentName||'匿名'}`; let corr=s.correctAnswers||0; let t=s.totalTimeSeconds||0; if(!map.has(key)||corr>map.get(key).correct||(corr===map.get(key).correct&&t<map.get(key).totalTime)) map.set(key,{className:s.className,studentName:s.studentName,correct:corr,totalTime:t}); }); return Array.from(map.values()).sort((a,b)=>b.correct-a.correct||a.totalTime-b.totalTime); }catch(e){return[];} }
         async updateGlobalRankAndMyCard(){ let list=await this.fetchRankingData(); renderGlobalRank(list); if(this.studentName && this.studentClass){ let myKey=`${this.studentClass}|${this.studentName}`; let rank=null,score=null; list.forEach((it,i)=>{ if(`${it.className}|${it.studentName}`===myKey){ rank=i+1; score=it; } }); let cont=document.getElementById('globalMyRankContent'); if(score){ cont.innerHTML=`<div class="my-info"><div class="my-name">${score.studentName}</div><div class="my-class">${score.className}</div></div><div class="my-stats"><span>✅ ${score.correct}/5</span><span>⏱️ ${score.totalTime}秒</span></div><div class="my-rank-badge">🏆 第${rank}名</div>`; } else { cont.innerHTML='<div class="no-score">📝 暂无记录</div>'; } } else { document.getElementById('globalMyRankContent').innerHTML='<div class="no-score">✨ 暂无成绩 ✨</div>'; } }
@@ -796,6 +771,7 @@
             this.addA=5; this.addB=3; this.correctAnswer=8; this.currentQuestionType='add';
             this.isQuizMode=false; this.quizCount=0; this.correctCount=0; this.startTime=0; this.timerInterval=null; this.isChecking=false; this.dataSent=false; this.currentAnswer='';
             this.studentClass=''; this.studentName=''; this.layoutMode='row';
+            this.autoSubmitTimer = null;
             this.shapeTypes=['circle','square','star','heart','diamond','pentagon']; this.currentShape='circle'; this.color1='#f39c12'; this.color2='#2ecc71';
             this.API_BASE='https://quickform.cn/api/5ikm1lx5jl'; this.RANK_URL=this.API_BASE+'/all'; this.SUBMIT_URL=this.API_BASE;
             this.visualDiv=document.getElementById('arithmeticVisual'); this.answerDisplay=document.getElementById('arithmeticAnswerDisplay'); this.resultDiv=document.getElementById('arithmeticResult');
@@ -805,8 +781,24 @@
         }
         initEvents(){ this.delBtn.onclick=()=>this.deleteDigit(); this.submitBtn.onclick=()=>this.checkAnswer(); document.querySelectorAll('.arith-mode-action').forEach(btn=>{ btn.addEventListener('click',(e)=>{ const act=btn.dataset.action; if(act==='showModal') this.showStartModal(); else if(act==='changeLayout') this.toggleLayout(); else if(act==='reset') this.resetGame(); }); }); }
         buildKeypad(){ this.keypadGrid.innerHTML=''; '1234567890'.split('').forEach(d=>{ let b=document.createElement('button'); b.textContent=d; b.classList.add('num-btn'); b.onclick=()=>this.appendDigit(d); this.keypadGrid.appendChild(b); }); }
-        appendDigit(d){ if(this.currentAnswer.length>=2) return; if(this.currentAnswer==='' && d==='0') return; this.currentAnswer+=d; this.updateDisplay(); }
-        deleteDigit(){ this.currentAnswer=this.currentAnswer.slice(0,-1); this.updateDisplay(); } updateDisplay(){ this.answerDisplay.textContent=this.currentAnswer===''?'?':this.currentAnswer; } clearAnswer(){ this.currentAnswer=''; this.updateDisplay(); } getCurrentNumber(){ return this.currentAnswer===''?NaN:parseInt(this.currentAnswer,10); }
+        appendDigit(d){ 
+            if(this.currentAnswer.length>=2) return; 
+            if(this.currentAnswer==='' && d==='0') return; 
+            this.currentAnswer+=d; 
+            this.updateDisplay();
+            if(this.autoSubmitTimer) clearTimeout(this.autoSubmitTimer);
+            let currentNum = parseInt(this.currentAnswer, 10);
+            if (!isNaN(currentNum) && currentNum === this.correctAnswer && !this.isChecking) {
+                this.autoSubmitTimer = setTimeout(() => {
+                    this.checkAnswer();
+                    this.autoSubmitTimer = null;
+                }, 1000);
+            }
+        }
+        deleteDigit(){ this.currentAnswer=this.currentAnswer.slice(0,-1); this.updateDisplay(); if(this.autoSubmitTimer){ clearTimeout(this.autoSubmitTimer); this.autoSubmitTimer=null; } }
+        updateDisplay(){ this.answerDisplay.textContent=this.currentAnswer===''?'?':this.currentAnswer; } 
+        clearAnswer(){ this.currentAnswer=''; this.updateDisplay(); if(this.autoSubmitTimer){ clearTimeout(this.autoSubmitTimer); this.autoSubmitTimer=null; } }
+        getCurrentNumber(){ return this.currentAnswer===''?NaN:parseInt(this.currentAnswer,10); }
         randomizeStyle(){ this.currentShape=this.shapeTypes[Math.floor(Math.random()*this.shapeTypes.length)]; this.color1=['#f39c12','#e67e22','#9b59b6','#3498db'][Math.floor(Math.random()*4)]; this.color2=['#2ecc71','#e74c3c','#f1c40f'][Math.floor(Math.random()*3)]; }
         getShapeClass(sh){ return `shape-${sh}`; } getExtraShapeClass(sh){ return `extra-shape-${sh}`; }
         renderTenFrame(container,count,color){ container.innerHTML=''; let gridDiv=document.createElement('div'); gridDiv.className=`ten-grid ${this.layoutMode==='row'?'row-mode':'grid-mode'}`; let shapeClass=this.getShapeClass(this.currentShape); for(let i=0;i<10;i++){ let cell=document.createElement('div'); cell.className='grid-cell'; if(i<count){ let sh=document.createElement('div'); sh.className=shapeClass; sh.style.backgroundColor=color; cell.appendChild(sh); } gridDiv.appendChild(cell); } container.appendChild(gridDiv); }
@@ -836,7 +828,18 @@
                 this.visualDiv.appendChild(subDiv);
             }
         }
-        resetGame(){ if(this.isQuizMode){ this.isQuizMode=false; this.clearTimer(); this.quizPanel.style.display='none'; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false; } this.randomizeStyle(); this.generateRandomArithmetic(); this.renderCurrentQuestion(); this.clearAnswer(); this.resultDiv.innerHTML='✨ 新的一局 ✨'; this.resultDiv.className='result correct'; setTimeout(()=>{ if(this.resultDiv.innerHTML==='✨ 新的一局 ✨') this.resultDiv.innerHTML='';},1500); }
+        resetGame(){ 
+            if(this.isQuizMode){ 
+                this.isQuizMode=false; this.clearTimer(); this.quizPanel.style.display='none'; 
+                this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false; 
+                startRankAutoRefresh();
+            } 
+            if(this.autoSubmitTimer) clearTimeout(this.autoSubmitTimer);
+            this.randomizeStyle(); this.generateRandomArithmetic(); this.renderCurrentQuestion(); 
+            this.clearAnswer(); 
+            this.resultDiv.innerHTML='✨ 新的一局 ✨'; this.resultDiv.className='result correct'; 
+            setTimeout(()=>{ if(this.resultDiv.innerHTML==='✨ 新的一局 ✨') this.resultDiv.innerHTML='';},1500); 
+        }
         toggleLayout(){ this.layoutMode=(this.layoutMode==='row'?'grid':'row'); this.renderCurrentQuestion(); }
         clearTimer(){ if(this.timerInterval){ clearInterval(this.timerInterval); this.timerInterval=null; } }
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
@@ -844,7 +847,7 @@
         showStartModal(){ showModalForGame((cls,name)=>{ this.studentClass=cls; this.studentName=name; this.startQuizMode(); }); }
         startQuizMode(){ 
             if(this.isQuizMode) return;
-            stopRankAutoRefresh();  // 答题模式开始：停止排行榜自动刷新
+            stopRankAutoRefresh();
             this.isQuizMode=true; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false;
             this.clearTimer(); this.quizPanel.style.display='flex'; this.startTimer(); this.nextQuestion();
         }
@@ -857,14 +860,52 @@
             this.randomizeStyle(); this.generateRandomArithmetic(); this.renderCurrentQuestion(); this.clearAnswer(); 
             setTimeout(()=>{ if(this.resultDiv.innerHTML===msg) this.resultDiv.innerHTML='';},4000); 
             if(this.onQuizFinish) this.onQuizFinish({correct:this.correctCount, totalTime:totalSec});
-            startRankAutoRefresh();  // 恢复自动刷新
+            startRankAutoRefresh();
             refreshGlobalRankAndMyCard(activeGameType);
         }
         async sendResult(seconds){ if(this.dataSent||!this.studentClass) return; try{ await fetch(this.SUBMIT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({className:this.studentClass,studentName:this.studentName,correctAnswers:this.correctCount,totalTimeSeconds:seconds,totalQuestions:5})}); this.dataSent=true; if(activeGameType==='arithmetic') refreshGlobalRankAndMyCard('arithmetic'); } catch(e){} }
-        checkAnswer(){ if(this.isChecking) return; let val=this.getCurrentNumber(); if(isNaN(val)){ if(!this.isQuizMode){ this.resultDiv.innerHTML='🐣 输入数字！'; this.resultDiv.className='result wrong'; setTimeout(()=>{ if(this.resultDiv.innerHTML==='🐣 输入数字！') this.resultDiv.innerHTML='';},1000);} else { this.isChecking=true; this.nextQuestion(); setTimeout(()=>{this.isChecking=false;},200);} return; }
-        let isCorrect=(val===this.correctAnswer); if(this.isQuizMode){ this.isChecking=true; if(isCorrect) this.correctCount++; this.nextQuestion(); setTimeout(()=>{this.isChecking=false;},200); return; }
-        if(isCorrect){ this.resultDiv.innerHTML='🎉 ✅ 完全正确！ 🎉'; this.resultDiv.className='result correct'; this.clearAnswer(); setTimeout(()=>{ if(this.resultDiv.innerHTML.includes('完全正确')) this.resultDiv.innerHTML='';},1800);}
-        else{ this.resultDiv.innerHTML=`😭 答案是 ${this.correctAnswer}，再试试~`; this.resultDiv.className='result wrong'; this.clearAnswer(); setTimeout(()=>{ if(this.resultDiv.innerHTML.includes('再试试')) this.resultDiv.innerHTML='';},2000);}
+        checkAnswer(){ 
+            if(this.isChecking) return; 
+            let val=this.getCurrentNumber(); 
+            if(isNaN(val)){ 
+                if(!this.isQuizMode){ 
+                    this.resultDiv.innerHTML='🐣 输入数字！'; this.resultDiv.className='result wrong'; 
+                    setTimeout(()=>{ if(this.resultDiv.innerHTML==='🐣 输入数字！') this.resultDiv.innerHTML='';},1000);
+                } else { 
+                    this.isChecking=true; this.nextQuestion(); setTimeout(()=>{this.isChecking=false;},200);
+                } 
+                return; 
+            }
+            let isCorrect=(val===this.correctAnswer); 
+            if(this.isQuizMode){ 
+                this.isChecking=true; 
+                if(isCorrect) this.correctCount++; 
+                this.nextQuestion(); 
+                setTimeout(()=>{this.isChecking=false;},200); 
+                return; 
+            }
+            // 练习模式
+            if(isCorrect){ 
+                this.resultDiv.innerHTML='🎉 ✅ 完全正确！ 🎉'; 
+                this.resultDiv.className='result correct'; 
+                this.clearAnswer();
+                setTimeout(() => {
+                    if(!this.isQuizMode) {
+                        this.generateRandomArithmetic();
+                        this.renderCurrentQuestion();
+                        this.clearAnswer();
+                        this.resultDiv.innerHTML = '';
+                        this.resultDiv.className = 'result';
+                    }
+                }, 1000);
+            } else { 
+                this.resultDiv.innerHTML=`😭 答案是 ${this.correctAnswer}，再试试~`; 
+                this.resultDiv.className='result wrong'; 
+                this.clearAnswer(); 
+                setTimeout(()=>{ 
+                    if(!this.isQuizMode && this.resultDiv.innerHTML.includes('再试试')) this.resultDiv.innerHTML='';
+                }, 2000);
+            }
         }
         async fetchRankingData(){ try{ let res=await fetch(this.RANK_URL,{cache:'no-cache'}); if(!res.ok)return[]; let data=await res.json(); let subs=data.submissions||[]; let map=new Map(); subs.forEach(s=>{ let key=`${s.className||'未知'}|${s.studentName||'匿名'}`; let corr=s.correctAnswers||0; let t=s.totalTimeSeconds||0; if(!map.has(key)||corr>map.get(key).correct||(corr===map.get(key).correct&&t<map.get(key).totalTime)) map.set(key,{className:s.className,studentName:s.studentName,correct:corr,totalTime:t}); }); return Array.from(map.values()).sort((a,b)=>b.correct-a.correct||a.totalTime-b.totalTime); }catch(e){return[];} }
         async updateGlobalRankAndMyCard(){ let list=await this.fetchRankingData(); renderGlobalRank(list); if(this.studentName && this.studentClass){ let myKey=`${this.studentClass}|${this.studentName}`; let rank=null,score=null; list.forEach((it,i)=>{ if(`${it.className}|${it.studentName}`===myKey){ rank=i+1; score=it; } }); let cont=document.getElementById('globalMyRankContent'); if(score){ cont.innerHTML=`<div class="my-info"><div class="my-name">${score.studentName}</div><div class="my-class">${score.className}</div></div><div class="my-stats"><span>✅ ${score.correct}/5</span><span>⏱️ ${score.totalTime}秒</span></div><div class="my-rank-badge">🏆 第${rank}名</div>`; } else { cont.innerHTML='<div class="no-score">📝 暂无记录</div>'; } } else { document.getElementById('globalMyRankContent').innerHTML='<div class="no-score">✨ 暂无成绩 ✨</div>'; } }
@@ -876,7 +917,7 @@
     document.querySelectorAll('.tab-btn[data-game]').forEach(btn => btn.addEventListener('click', () => switchGame(btn.dataset.game)));
     document.getElementById('globalRankRefresh').onclick = () => refreshGlobalRankAndMyCard(activeGameType);
     switchGame('count');
-    startRankAutoRefresh();   // 启动自动刷新（非答题模式时）
+    startRankAutoRefresh();
 </script>
 </body>
 </html>
