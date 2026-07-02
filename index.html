@@ -524,6 +524,56 @@
     let activeGameType = 'count';
     let rankAutoRefreshTimer = null;
 
+    // ---------- 白名单配置 ----------
+    const WHITELIST_URL = 'https://wzkjgz.site/api/5tmbx2o6rg/all';
+    let whitelistCache = null;          // 缓存白名单数据
+    let whitelistCacheTime = 0;
+    const CACHE_TTL = 60000;            // 缓存有效期60秒
+
+    /**
+     * 获取白名单数据（带缓存）
+     * 返回格式: [{ class: "3班", name: "游斯晨" }, ...]
+     */
+    async function fetchWhitelist() {
+        const now = Date.now();
+        if (whitelistCache && (now - whitelistCacheTime) < CACHE_TTL) {
+            return whitelistCache;
+        }
+        try {
+            const resp = await fetch(WHITELIST_URL, { cache: 'no-cache' });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            const data = await resp.json();
+            // 提取 submissions 数组，标准化字段名
+            const raw = data.submissions || [];
+            whitelistCache = raw.map(item => ({
+                class: item.class || '',
+                name: item.name || ''
+            }));
+            whitelistCacheTime = now;
+            return whitelistCache;
+        } catch (e) {
+            console.warn('获取白名单失败:', e);
+            // 返回空数组，降级处理：不允许任何人通过
+            return [];
+        }
+    }
+
+    /**
+     * 验证班级+姓名是否在白名单中
+     * @param {string} className - 如 "3班"
+     * @param {string} studentName - 如 "游斯晨"
+     * @returns {Promise<boolean>}
+     */
+    async function checkWhitelist(className, studentName) {
+        const list = await fetchWhitelist();
+        // 去除首尾空格，忽略大小写敏感（根据需求可调整）
+        const trimmedClass = className.trim();
+        const trimmedName = studentName.trim();
+        return list.some(item => {
+            return item.class.trim() === trimmedClass && item.name.trim() === trimmedName;
+        });
+    }
+
     function startRankAutoRefresh() {
         if (rankAutoRefreshTimer) clearInterval(rankAutoRefreshTimer);
         rankAutoRefreshTimer = setInterval(() => {
@@ -539,20 +589,41 @@
         }
     }
 
+    // ---------- 修改：带白名单验证的模态框 ----------
     function showModalForGame(callback) {
+        // 先清空输入框
         studentNameInput.value = '';
         classSelect.value = '1';
+
+        // 显示模态框
         globalModal.style.display = 'flex';
-        const handler = () => {
+
+        // 移除旧监听器，避免重复绑定
+        const newHandler = async () => {
             let cls = classSelect.value + '班';
             let name = studentNameInput.value.trim();
-            if (!name) { alert('请填写姓名 ✏️'); return; }
+            if (!name) {
+                alert('请填写姓名 ✏️');
+                return;
+            }
+
+            // ----- 白名单验证 -----
+            const isAllowed = await checkWhitelist(cls, name);
+            if (!isAllowed) {
+                alert('❌ 未在白名单中，无法进入答题模式。请联系老师添加。');
+                return;
+            }
+
+            // 验证通过，关闭模态框并启动游戏
             globalModal.style.display = 'none';
             if (callback) callback(cls, name);
-            confirmQuizBtn.removeEventListener('click', handler);
+            // 移除监听器，避免重复触发
+            confirmQuizBtn.removeEventListener('click', newHandler);
         };
-        confirmQuizBtn.onclick = handler;
+
+        confirmQuizBtn.onclick = newHandler;
     }
+
     function closeGlobalModal() { globalModal.style.display = 'none'; }
     closeModalBtn.onclick = closeGlobalModal;
     globalModal.addEventListener('click', (e) => { if(e.target === globalModal) closeGlobalModal(); });
@@ -697,7 +768,14 @@
         clearTimer(){ if(this.timerInterval){ clearInterval(this.timerInterval); this.timerInterval=null; } }
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
         startTimer(){ this.clearTimer(); this.startTime=Date.now(); this.updateTimerDisplay(); this.timerInterval=setInterval(()=>{ if(this.isQuizMode) this.updateTimerDisplay(); else this.clearTimer(); },1000); }
-        showStartModal() { showModalForGame((cls,name)=>{ this.studentClass=cls; this.studentName=name; this.startQuizMode(); }); }
+        showStartModal() { 
+            // 使用全局的白名单验证模态框
+            showModalForGame((cls, name) => {
+                this.studentClass = cls;
+                this.studentName = name;
+                this.startQuizMode();
+            });
+        }
         startQuizMode(){ 
             if(this.isQuizMode) return;
             stopRankAutoRefresh();
@@ -759,7 +837,7 @@
                 }, 2000);
             }
         }
-        // ✅ 修改：只取当天的提交记录
+        // 只取当天的提交记录
         async fetchRankingData(){ 
             try{ 
                 let res=await fetch(this.RANK_URL,{cache:'no-cache'}); 
@@ -770,7 +848,7 @@
                 const today = new Date();
                 today.setHours(0,0,0,0);
                 subs = subs.filter(s => {
-                    if (!s.createdAt) return false; // 无时间字段则视为非当天
+                    if (!s.createdAt) return false;
                     let date = new Date(s.createdAt);
                     date.setHours(0,0,0,0);
                     return date.getTime() === today.getTime();
@@ -870,7 +948,14 @@
         clearTimer(){ if(this.timerInterval){ clearInterval(this.timerInterval); this.timerInterval=null; } }
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
         startTimer(){ this.clearTimer(); this.startTime=Date.now(); this.updateTimerDisplay(); this.timerInterval=setInterval(()=>{ if(this.isQuizMode) this.updateTimerDisplay(); else this.clearTimer(); },1000); }
-        showStartModal(){ showModalForGame((cls,name)=>{ this.studentClass=cls; this.studentName=name; this.startQuizMode(); }); }
+        showStartModal() {
+            // 使用全局的白名单验证模态框
+            showModalForGame((cls, name) => {
+                this.studentClass = cls;
+                this.studentName = name;
+                this.startQuizMode();
+            });
+        }
         startQuizMode(){ 
             if(this.isQuizMode) return;
             stopRankAutoRefresh();
@@ -933,7 +1018,7 @@
                 }, 2000);
             }
         }
-        // ✅ 修改：只取当天的提交记录
+        // 只取当天的提交记录
         async fetchRankingData(){ 
             try{ 
                 let res=await fetch(this.RANK_URL,{cache:'no-cache'}); 
