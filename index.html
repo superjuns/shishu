@@ -432,6 +432,17 @@
         .modal-field label { font-weight: bold; color: #e67e22; display: block; margin-bottom: 5px; font-size: 0.9rem; }
         .modal-field select, .modal-field input { width: 100%; padding: 10px; border-radius: 50px; border: 2px solid #ffe0b5; font-size: 0.9rem; }
         .modal-buttons button { background: #a29bfe; color: white; border: none; padding: 8px 18px; border-radius: 50px; font-weight: bold; cursor: pointer; }
+        /* 新增：内联错误提示样式 */
+        .whitelist-error {
+            color: #d63031;
+            font-size: 0.75rem;
+            margin-top: 10px;
+            background: #ffe0e0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: none;
+            font-weight: 600;
+        }
 
         @media (max-width: 680px) {
             .ten-grid.row-mode { grid-template-columns: repeat(10, minmax(30px, 40px)); gap: 4px; }
@@ -511,7 +522,10 @@
 <div id="globalInfoModal" class="global-modal"><div class="modal-card"><button class="close-modal-btn" id="globalCloseModal">×</button><h3>✏️ 小小数学家</h3>
     <div class="modal-field"><label>📚 班级：</label><select id="globalClassSelect"><option value="1">1班</option><option value="2">2班</option><option value="3">3班</option><option value="4">4班</option><option value="5">5班</option><option value="6">6班</option><option value="7">7班</option></select></div>
     <div class="modal-field"><label>👧 姓名：</label><input type="text" id="globalStudentName" placeholder="你的名字" maxlength="20"></div>
-    <div class="modal-buttons"><button id="globalConfirmQuizBtn">开始挑战 ✨</button></div>
+    <div class="modal-buttons">
+        <button id="globalConfirmQuizBtn">开始挑战 ✨</button>
+        <div id="whitelistError" class="whitelist-error">❌ 未在白名单中，无法进入答题模式。请联系老师添加。</div>
+    </div>
 </div></div>
 
 <script>
@@ -521,6 +535,7 @@
     const classSelect = document.getElementById('globalClassSelect');
     const studentNameInput = document.getElementById('globalStudentName');
     const confirmQuizBtn = document.getElementById('globalConfirmQuizBtn');
+    const whitelistErrorEl = document.getElementById('whitelistError');
     let activeGameType = 'count';
     let rankAutoRefreshTimer = null;
 
@@ -589,32 +604,39 @@
         }
     }
 
-    // ---------- 修改：带白名单验证的模态框 ----------
+    // ---------- 修改：带白名单验证的模态框，错误信息显示在对话框内 ----------
     function showModalForGame(callback) {
-        // 先清空输入框
+        // 每次打开模态框时，清空输入、重置错误状态
         studentNameInput.value = '';
         classSelect.value = '1';
-
-        // 显示模态框
+        whitelistErrorEl.style.display = 'none';
+        whitelistErrorEl.textContent = '❌ 未在白名单中，无法进入答题模式。请联系老师添加。'; // 重置默认错误文本
+        
         globalModal.style.display = 'flex';
 
         // 移除旧监听器，避免重复绑定
         const newHandler = async () => {
             let cls = classSelect.value + '班';
             let name = studentNameInput.value.trim();
+            
+            // 1. 校验姓名是否为空
             if (!name) {
-                alert('请填写姓名 ✏️');
+                whitelistErrorEl.textContent = '✏️ 请填写姓名';
+                whitelistErrorEl.style.display = 'block';
                 return;
             }
 
-            // ----- 白名单验证 -----
+            // 2. 校验白名单
+            // 先重置为默认错误文本，以便后续显示
+            whitelistErrorEl.textContent = '❌ 未在白名单中，无法进入答题模式。请联系老师添加。';
             const isAllowed = await checkWhitelist(cls, name);
             if (!isAllowed) {
-                alert('❌ 未在白名单中，无法进入答题模式。请联系老师添加。');
+                whitelistErrorEl.style.display = 'block';
                 return;
             }
 
-            // 验证通过，关闭模态框并启动游戏
+            // 验证通过，隐藏错误，关闭模态框，启动游戏
+            whitelistErrorEl.style.display = 'none';
             globalModal.style.display = 'none';
             if (callback) callback(cls, name);
             // 移除监听器，避免重复触发
@@ -624,7 +646,11 @@
         confirmQuizBtn.onclick = newHandler;
     }
 
-    function closeGlobalModal() { globalModal.style.display = 'none'; }
+    function closeGlobalModal() { 
+        globalModal.style.display = 'none'; 
+        // 关闭时顺便隐藏错误
+        whitelistErrorEl.style.display = 'none';
+    }
     closeModalBtn.onclick = closeGlobalModal;
     globalModal.addEventListener('click', (e) => { if(e.target === globalModal) closeGlobalModal(); });
 
