@@ -541,14 +541,10 @@
 
     // ---------- 白名单配置 ----------
     const WHITELIST_URL = 'https://wzkjgz.site/api/5tmbx2o6rg/all';
-    let whitelistCache = null;          // 缓存白名单数据
+    let whitelistCache = null;
     let whitelistCacheTime = 0;
-    const CACHE_TTL = 60000;            // 缓存有效期60秒
+    const CACHE_TTL = 60000;
 
-    /**
-     * 获取白名单数据（带缓存）
-     * 返回格式: [{ class: "3班", name: "游斯晨" }, ...]
-     */
     async function fetchWhitelist() {
         const now = Date.now();
         if (whitelistCache && (now - whitelistCacheTime) < CACHE_TTL) {
@@ -558,7 +554,6 @@
             const resp = await fetch(WHITELIST_URL, { cache: 'no-cache' });
             if (!resp.ok) throw new Error('HTTP ' + resp.status);
             const data = await resp.json();
-            // 提取 submissions 数组，标准化字段名
             const raw = data.submissions || [];
             whitelistCache = raw.map(item => ({
                 class: item.class || '',
@@ -568,20 +563,12 @@
             return whitelistCache;
         } catch (e) {
             console.warn('获取白名单失败:', e);
-            // 返回空数组，降级处理：不允许任何人通过
             return [];
         }
     }
 
-    /**
-     * 验证班级+姓名是否在白名单中
-     * @param {string} className - 如 "3班"
-     * @param {string} studentName - 如 "游斯晨"
-     * @returns {Promise<boolean>}
-     */
     async function checkWhitelist(className, studentName) {
         const list = await fetchWhitelist();
-        // 去除首尾空格，忽略大小写敏感（根据需求可调整）
         const trimmedClass = className.trim();
         const trimmedName = studentName.trim();
         return list.some(item => {
@@ -604,30 +591,24 @@
         }
     }
 
-    // ---------- 修改：带白名单验证的模态框，错误信息显示在对话框内 ----------
     function showModalForGame(callback) {
-        // 每次打开模态框时，清空输入、重置错误状态
         studentNameInput.value = '';
         classSelect.value = '1';
         whitelistErrorEl.style.display = 'none';
-        whitelistErrorEl.textContent = '❌ 未在白名单中，无法进入答题模式。请联系老师添加。'; // 重置默认错误文本
+        whitelistErrorEl.textContent = '❌ 未在白名单中，无法进入答题模式。请联系老师添加。';
         
         globalModal.style.display = 'flex';
 
-        // 移除旧监听器，避免重复绑定
         const newHandler = async () => {
             let cls = classSelect.value + '班';
             let name = studentNameInput.value.trim();
             
-            // 1. 校验姓名是否为空
             if (!name) {
                 whitelistErrorEl.textContent = '✏️ 请填写姓名';
                 whitelistErrorEl.style.display = 'block';
                 return;
             }
 
-            // 2. 校验白名单
-            // 先重置为默认错误文本，以便后续显示
             whitelistErrorEl.textContent = '❌ 未在白名单中，无法进入答题模式。请联系老师添加。';
             const isAllowed = await checkWhitelist(cls, name);
             if (!isAllowed) {
@@ -635,11 +616,9 @@
                 return;
             }
 
-            // 验证通过，隐藏错误，关闭模态框，启动游戏
             whitelistErrorEl.style.display = 'none';
             globalModal.style.display = 'none';
             if (callback) callback(cls, name);
-            // 移除监听器，避免重复触发
             confirmQuizBtn.removeEventListener('click', newHandler);
         };
 
@@ -648,7 +627,6 @@
 
     function closeGlobalModal() { 
         globalModal.style.display = 'none'; 
-        // 关闭时顺便隐藏错误
         whitelistErrorEl.style.display = 'none';
     }
     closeModalBtn.onclick = closeGlobalModal;
@@ -656,7 +634,11 @@
 
     function renderGlobalRank(rankList) {
         const row1 = document.getElementById('globalRankRow1'), row2 = document.getElementById('globalRankRow2');
-        if (!rankList.length) { row1.innerHTML = '<div class="rank-empty">✨ 今日暂无学霸数据 ✨</div>'; row2.innerHTML = ''; return; }
+        if (!rankList.length) { 
+            row1.innerHTML = '<div class="rank-empty">✨ 今日暂无学霸数据 ✨</div>'; 
+            row2.innerHTML = ''; 
+            return; 
+        }
         const top5 = rankList.slice(0,5), next5 = rankList.slice(5,10);
         row1.innerHTML = top5.map((item,idx) => {
             let medal = idx===0?'🥇':(idx===1?'🥈':(idx===2?'🥉':`${idx+1}`));
@@ -795,7 +777,6 @@
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
         startTimer(){ this.clearTimer(); this.startTime=Date.now(); this.updateTimerDisplay(); this.timerInterval=setInterval(()=>{ if(this.isQuizMode) this.updateTimerDisplay(); else this.clearTimer(); },1000); }
         showStartModal() { 
-            // 使用全局的白名单验证模态框
             showModalForGame((cls, name) => {
                 this.studentClass = cls;
                 this.studentName = name;
@@ -863,34 +844,78 @@
                 }, 2000);
             }
         }
-        // 只取当天的提交记录
+        // ---------- 排行榜数据获取（增强兼容性） ----------
         async fetchRankingData(){ 
             try{ 
                 let res=await fetch(this.RANK_URL,{cache:'no-cache'}); 
                 if(!res.ok)return[]; 
                 let data=await res.json(); 
+                console.log('📊 排行榜原始数据:', data); // 调试日志
                 let subs=data.submissions||[]; 
-                // 过滤当天
+                // 如果 subs 不是数组，尝试其他可能的结构
+                if(!Array.isArray(subs) && Array.isArray(data)) {
+                    subs = data; // 可能直接返回数组
+                }
+                // 字段映射：兼容多种命名
+                const mapped = subs.map(item => {
+                    // 尝试获取班级、姓名、正确数、用时、时间戳
+                    const className = item.className || item.class || item.Class || item['班级'] || '';
+                    const studentName = item.studentName || item.name || item.Name || item['姓名'] || '';
+                    const correct = item.correctAnswers !== undefined ? item.correctAnswers : (item.correct || item.Correct || 0);
+                    const totalTime = item.totalTimeSeconds !== undefined ? item.totalTimeSeconds : (item.totalTime || item.time || item.TotalTime || 0);
+                    const createdAt = item.createdAt || item.created_at || item.createTime || item.timestamp || null;
+                    return { className, studentName, correct, totalTime, createdAt };
+                });
+                // 过滤当天（如果有 createdAt）
                 const today = new Date();
                 today.setHours(0,0,0,0);
-                subs = subs.filter(s => {
-                    if (!s.createdAt) return false;
-                    let date = new Date(s.createdAt);
-                    date.setHours(0,0,0,0);
-                    return date.getTime() === today.getTime();
-                });
+                let filtered = mapped;
+                if (mapped.some(s => s.createdAt)) {
+                    filtered = mapped.filter(s => {
+                        if (!s.createdAt) return false;
+                        let date = new Date(s.createdAt);
+                        date.setHours(0,0,0,0);
+                        return date.getTime() === today.getTime();
+                    });
+                } else {
+                    console.warn('⚠️ 数据中无时间字段，显示全部记录');
+                }
+                // 按班级+姓名去重，取最优成绩
                 let map=new Map(); 
-                subs.forEach(s=>{ 
+                filtered.forEach(s=>{ 
                     let key=`${s.className||'未知'}|${s.studentName||'匿名'}`; 
-                    let corr=s.correctAnswers||0; 
-                    let t=s.totalTimeSeconds||0; 
+                    let corr=Number(s.correct) || 0; 
+                    let t=Number(s.totalTime) || 0; 
                     if(!map.has(key)||corr>map.get(key).correct||(corr===map.get(key).correct&&t<map.get(key).totalTime)) 
                         map.set(key,{className:s.className,studentName:s.studentName,correct:corr,totalTime:t}); 
                 }); 
-                return Array.from(map.values()).sort((a,b)=>b.correct-a.correct||a.totalTime-b.totalTime); 
-            }catch(e){return[];} 
+                const result = Array.from(map.values()).sort((a,b)=>b.correct-a.correct||a.totalTime-b.totalTime);
+                console.log('✅ 处理后排行榜:', result);
+                return result;
+            }catch(e){
+                console.error('❌ 获取排行榜失败:', e);
+                return [];
+            } 
         }
-        async updateGlobalRankAndMyCard(){ let list=await this.fetchRankingData(); renderGlobalRank(list); if(this.studentName && this.studentClass){ let myKey=`${this.studentClass}|${this.studentName}`; let rank=null,score=null; list.forEach((it,i)=>{ if(`${it.className}|${it.studentName}`===myKey){ rank=i+1; score=it; } }); let cont=document.getElementById('globalMyRankContent'); if(score){ cont.innerHTML=`<div class="my-info"><div class="my-name">${score.studentName}</div><div class="my-class">${score.className}</div></div><div class="my-stats"><span>✅ ${score.correct}/5</span><span>⏱️ ${score.totalTime}秒</span></div><div class="my-rank-badge">🏆 第${rank}名</div>`; } else { cont.innerHTML='<div class="no-score">📝 暂无记录</div>'; } } else { document.getElementById('globalMyRankContent').innerHTML='<div class="no-score">✨ 暂无成绩 ✨</div>'; } }
+        async updateGlobalRankAndMyCard(){ 
+            let list=await this.fetchRankingData(); 
+            renderGlobalRank(list); 
+            if(this.studentName && this.studentClass){ 
+                let myKey=`${this.studentClass}|${this.studentName}`; 
+                let rank=null,score=null; 
+                list.forEach((it,i)=>{ 
+                    if(`${it.className}|${it.studentName}`===myKey){ rank=i+1; score=it; } 
+                }); 
+                let cont=document.getElementById('globalMyRankContent'); 
+                if(score){ 
+                    cont.innerHTML=`<div class="my-info"><div class="my-name">${score.studentName}</div><div class="my-class">${score.className}</div></div><div class="my-stats"><span>✅ ${score.correct}/5</span><span>⏱️ ${score.totalTime}秒</span></div><div class="my-rank-badge">🏆 第${rank}名</div>`; 
+                } else { 
+                    cont.innerHTML='<div class="no-score">📝 暂无记录</div>'; 
+                } 
+            } else { 
+                document.getElementById('globalMyRankContent').innerHTML='<div class="no-score">✨ 暂无成绩 ✨</div>'; 
+            } 
+        }
     }
 
     // ================= 算数游戏类 =================
@@ -975,7 +1000,6 @@
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
         startTimer(){ this.clearTimer(); this.startTime=Date.now(); this.updateTimerDisplay(); this.timerInterval=setInterval(()=>{ if(this.isQuizMode) this.updateTimerDisplay(); else this.clearTimer(); },1000); }
         showStartModal() {
-            // 使用全局的白名单验证模态框
             showModalForGame((cls, name) => {
                 this.studentClass = cls;
                 this.studentName = name;
@@ -1044,34 +1068,73 @@
                 }, 2000);
             }
         }
-        // 只取当天的提交记录
+        // ---------- 排行榜数据获取（增强兼容性，与识数一致） ----------
         async fetchRankingData(){ 
             try{ 
                 let res=await fetch(this.RANK_URL,{cache:'no-cache'}); 
                 if(!res.ok)return[]; 
                 let data=await res.json(); 
+                console.log('📊 排行榜原始数据:', data);
                 let subs=data.submissions||[]; 
-                // 过滤当天
+                if(!Array.isArray(subs) && Array.isArray(data)) {
+                    subs = data;
+                }
+                const mapped = subs.map(item => {
+                    const className = item.className || item.class || item.Class || item['班级'] || '';
+                    const studentName = item.studentName || item.name || item.Name || item['姓名'] || '';
+                    const correct = item.correctAnswers !== undefined ? item.correctAnswers : (item.correct || item.Correct || 0);
+                    const totalTime = item.totalTimeSeconds !== undefined ? item.totalTimeSeconds : (item.totalTime || item.time || item.TotalTime || 0);
+                    const createdAt = item.createdAt || item.created_at || item.createTime || item.timestamp || null;
+                    return { className, studentName, correct, totalTime, createdAt };
+                });
                 const today = new Date();
                 today.setHours(0,0,0,0);
-                subs = subs.filter(s => {
-                    if (!s.createdAt) return false;
-                    let date = new Date(s.createdAt);
-                    date.setHours(0,0,0,0);
-                    return date.getTime() === today.getTime();
-                });
+                let filtered = mapped;
+                if (mapped.some(s => s.createdAt)) {
+                    filtered = mapped.filter(s => {
+                        if (!s.createdAt) return false;
+                        let date = new Date(s.createdAt);
+                        date.setHours(0,0,0,0);
+                        return date.getTime() === today.getTime();
+                    });
+                } else {
+                    console.warn('⚠️ 数据中无时间字段，显示全部记录');
+                }
                 let map=new Map(); 
-                subs.forEach(s=>{ 
+                filtered.forEach(s=>{ 
                     let key=`${s.className||'未知'}|${s.studentName||'匿名'}`; 
-                    let corr=s.correctAnswers||0; 
-                    let t=s.totalTimeSeconds||0; 
+                    let corr=Number(s.correct) || 0; 
+                    let t=Number(s.totalTime) || 0; 
                     if(!map.has(key)||corr>map.get(key).correct||(corr===map.get(key).correct&&t<map.get(key).totalTime)) 
                         map.set(key,{className:s.className,studentName:s.studentName,correct:corr,totalTime:t}); 
                 }); 
-                return Array.from(map.values()).sort((a,b)=>b.correct-a.correct||a.totalTime-b.totalTime); 
-            }catch(e){return[];} 
+                const result = Array.from(map.values()).sort((a,b)=>b.correct-a.correct||a.totalTime-b.totalTime);
+                console.log('✅ 处理后排行榜:', result);
+                return result;
+            }catch(e){
+                console.error('❌ 获取排行榜失败:', e);
+                return [];
+            } 
         }
-        async updateGlobalRankAndMyCard(){ let list=await this.fetchRankingData(); renderGlobalRank(list); if(this.studentName && this.studentClass){ let myKey=`${this.studentClass}|${this.studentName}`; let rank=null,score=null; list.forEach((it,i)=>{ if(`${it.className}|${it.studentName}`===myKey){ rank=i+1; score=it; } }); let cont=document.getElementById('globalMyRankContent'); if(score){ cont.innerHTML=`<div class="my-info"><div class="my-name">${score.studentName}</div><div class="my-class">${score.className}</div></div><div class="my-stats"><span>✅ ${score.correct}/5</span><span>⏱️ ${score.totalTime}秒</span></div><div class="my-rank-badge">🏆 第${rank}名</div>`; } else { cont.innerHTML='<div class="no-score">📝 暂无记录</div>'; } } else { document.getElementById('globalMyRankContent').innerHTML='<div class="no-score">✨ 暂无成绩 ✨</div>'; } }
+        async updateGlobalRankAndMyCard(){ 
+            let list=await this.fetchRankingData(); 
+            renderGlobalRank(list); 
+            if(this.studentName && this.studentClass){ 
+                let myKey=`${this.studentClass}|${this.studentName}`; 
+                let rank=null,score=null; 
+                list.forEach((it,i)=>{ 
+                    if(`${it.className}|${it.studentName}`===myKey){ rank=i+1; score=it; } 
+                }); 
+                let cont=document.getElementById('globalMyRankContent'); 
+                if(score){ 
+                    cont.innerHTML=`<div class="my-info"><div class="my-name">${score.studentName}</div><div class="my-class">${score.className}</div></div><div class="my-stats"><span>✅ ${score.correct}/5</span><span>⏱️ ${score.totalTime}秒</span></div><div class="my-rank-badge">🏆 第${rank}名</div>`; 
+                } else { 
+                    cont.innerHTML='<div class="no-score">📝 暂无记录</div>'; 
+                } 
+            } else { 
+                document.getElementById('globalMyRankContent').innerHTML='<div class="no-score">✨ 暂无成绩 ✨</div>'; 
+            } 
+        }
     }
 
     window.countGame = new CountGame();
