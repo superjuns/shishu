@@ -501,7 +501,7 @@
 
     <!-- 排行榜 & 我的成绩 -->
     <div class="global-rank-area">
-        <div class="rank-header"><div class="rank-title" id="globalRankTitle">🏆 学霸榜 · 最好成绩</div><div class="rank-refresh" id="globalRankRefresh">⟳ 刷新</div></div>
+        <div class="rank-header"><div class="rank-title" id="globalRankTitle">🏆 今日学霸榜</div><div class="rank-refresh" id="globalRankRefresh">⟳ 刷新</div></div>
         <div class="rank-rows"><div class="rank-row" id="globalRankRow1"></div><div class="rank-row" id="globalRankRow2"></div></div>
         <div class="my-rank-card" id="globalMyRankCard"><div class="my-rank-title">📖 我的最佳记录</div><div class="my-rank-content" id="globalMyRankContent">✨ 暂无成绩，快去挑战 ✨</div></div>
     </div>
@@ -524,6 +524,56 @@
     let activeGameType = 'count';
     let rankAutoRefreshTimer = null;
 
+    // ---------- 白名单配置 ----------
+    const WHITELIST_URL = 'https://wzkjgz.site/api/5tmbx2o6rg/all';
+    let whitelistCache = null;          // 缓存白名单数据
+    let whitelistCacheTime = 0;
+    const CACHE_TTL = 60000;            // 缓存有效期60秒
+
+    /**
+     * 获取白名单数据（带缓存）
+     * 返回格式: [{ class: "3班", name: "游斯晨" }, ...]
+     */
+    async function fetchWhitelist() {
+        const now = Date.now();
+        if (whitelistCache && (now - whitelistCacheTime) < CACHE_TTL) {
+            return whitelistCache;
+        }
+        try {
+            const resp = await fetch(WHITELIST_URL, { cache: 'no-cache' });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            const data = await resp.json();
+            // 提取 submissions 数组，标准化字段名
+            const raw = data.submissions || [];
+            whitelistCache = raw.map(item => ({
+                class: item.class || '',
+                name: item.name || ''
+            }));
+            whitelistCacheTime = now;
+            return whitelistCache;
+        } catch (e) {
+            console.warn('获取白名单失败:', e);
+            // 返回空数组，降级处理：不允许任何人通过
+            return [];
+        }
+    }
+
+    /**
+     * 验证班级+姓名是否在白名单中
+     * @param {string} className - 如 "3班"
+     * @param {string} studentName - 如 "游斯晨"
+     * @returns {Promise<boolean>}
+     */
+    async function checkWhitelist(className, studentName) {
+        const list = await fetchWhitelist();
+        // 去除首尾空格，忽略大小写敏感（根据需求可调整）
+        const trimmedClass = className.trim();
+        const trimmedName = studentName.trim();
+        return list.some(item => {
+            return item.class.trim() === trimmedClass && item.name.trim() === trimmedName;
+        });
+    }
+
     function startRankAutoRefresh() {
         if (rankAutoRefreshTimer) clearInterval(rankAutoRefreshTimer);
         rankAutoRefreshTimer = setInterval(() => {
@@ -539,27 +589,48 @@
         }
     }
 
+    // ---------- 修改：带白名单验证的模态框 ----------
     function showModalForGame(callback) {
+        // 先清空输入框
         studentNameInput.value = '';
         classSelect.value = '1';
+
+        // 显示模态框
         globalModal.style.display = 'flex';
-        const handler = () => {
+
+        // 移除旧监听器，避免重复绑定
+        const newHandler = async () => {
             let cls = classSelect.value + '班';
             let name = studentNameInput.value.trim();
-            if (!name) { alert('请填写姓名 ✏️'); return; }
+            if (!name) {
+                alert('请填写姓名 ✏️');
+                return;
+            }
+
+            // ----- 白名单验证 -----
+            const isAllowed = await checkWhitelist(cls, name);
+            if (!isAllowed) {
+                alert('❌ 未在白名单中，无法进入答题模式。请联系老师添加。');
+                return;
+            }
+
+            // 验证通过，关闭模态框并启动游戏
             globalModal.style.display = 'none';
             if (callback) callback(cls, name);
-            confirmQuizBtn.removeEventListener('click', handler);
+            // 移除监听器，避免重复触发
+            confirmQuizBtn.removeEventListener('click', newHandler);
         };
-        confirmQuizBtn.onclick = handler;
+
+        confirmQuizBtn.onclick = newHandler;
     }
+
     function closeGlobalModal() { globalModal.style.display = 'none'; }
     closeModalBtn.onclick = closeGlobalModal;
     globalModal.addEventListener('click', (e) => { if(e.target === globalModal) closeGlobalModal(); });
 
     function renderGlobalRank(rankList) {
         const row1 = document.getElementById('globalRankRow1'), row2 = document.getElementById('globalRankRow2');
-        if (!rankList.length) { row1.innerHTML = '<div class="rank-empty">✨ 暂无学霸数据 ✨</div>'; row2.innerHTML = ''; return; }
+        if (!rankList.length) { row1.innerHTML = '<div class="rank-empty">✨ 今日暂无学霸数据 ✨</div>'; row2.innerHTML = ''; return; }
         const top5 = rankList.slice(0,5), next5 = rankList.slice(5,10);
         row1.innerHTML = top5.map((item,idx) => {
             let medal = idx===0?'🥇':(idx===1?'🥈':(idx===2?'🥉':`${idx+1}`));
@@ -586,7 +657,7 @@
         else document.getElementById('arithmeticGamePanel').classList.add('active-panel');
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelector(`.tab-btn[data-game="${type}"]`).classList.add('active');
-        document.getElementById('globalRankTitle').innerHTML = type==='count'?'🏆 识数学霸榜':'🏆 算数学霸榜';
+        document.getElementById('globalRankTitle').innerHTML = type==='count'?'🏆 今日识数学霸榜':'🏆 今日算数学霸榜';
         refreshGlobalRankAndMyCard(type);
     }
 
@@ -598,8 +669,10 @@
             this.layoutOptions = [2,5,10];
             this.isQuizMode = false; this.quizCount = 0; this.correctCount = 0; this.startTime = 0; this.timerInterval = null;
             this.isChecking = false; this.dataSent = false; this.currentAnswer = ''; this.studentClass = ''; this.studentName = '';
-            this.autoSubmitTimer = null; // 自动提交定时器
-            this.API_BASE = 'https://quickform.cn/api/zdtp3mphzo'; this.RANK_URL = this.API_BASE + '/all'; this.SUBMIT_URL = this.API_BASE;
+            this.autoSubmitTimer = null;
+            this.API_BASE = 'https://wzkjgz.site/api/6pwvws38id';
+            this.RANK_URL = this.API_BASE + '/all';
+            this.SUBMIT_URL = this.API_BASE;
             this.shapesBox = document.getElementById('countShapesBox'); this.answerDisplay = document.getElementById('countAnswerDisplay');
             this.resultDiv = document.getElementById('countResult'); this.timerDiv = document.getElementById('countTimer');
             this.quizPanel = document.getElementById('countQuizPanel'); this.progressSpan = document.getElementById('countProgress');
@@ -633,12 +706,9 @@
             if(this.currentAnswer==='' && d==='0') return; 
             this.currentAnswer+=d; 
             this.updateDisplay();
-            // 清除之前的自动提交定时器
             if(this.autoSubmitTimer) clearTimeout(this.autoSubmitTimer);
-            // 检查当前输入是否等于正确答案（完整输入且正确）
             let currentNum = parseInt(this.currentAnswer, 10);
             if (!isNaN(currentNum) && currentNum === this.totalShapes && !this.isChecking) {
-                // 延迟1秒自动提交
                 this.autoSubmitTimer = setTimeout(() => {
                     this.checkAnswer();
                     this.autoSubmitTimer = null;
@@ -698,7 +768,14 @@
         clearTimer(){ if(this.timerInterval){ clearInterval(this.timerInterval); this.timerInterval=null; } }
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
         startTimer(){ this.clearTimer(); this.startTime=Date.now(); this.updateTimerDisplay(); this.timerInterval=setInterval(()=>{ if(this.isQuizMode) this.updateTimerDisplay(); else this.clearTimer(); },1000); }
-        showStartModal() { showModalForGame((cls,name)=>{ this.studentClass=cls; this.studentName=name; this.startQuizMode(); }); }
+        showStartModal() { 
+            // 使用全局的白名单验证模态框
+            showModalForGame((cls, name) => {
+                this.studentClass = cls;
+                this.studentName = name;
+                this.startQuizMode();
+            });
+        }
         startQuizMode(){ 
             if(this.isQuizMode) return;
             stopRankAutoRefresh();
@@ -743,7 +820,6 @@
                 this.resultDiv.innerHTML='🎉 ✅ 完全正确！ 🎉'; 
                 this.resultDiv.className='result correct'; 
                 this.clearAnswer();
-                // 1秒后自动刷新题目
                 setTimeout(() => {
                     if(!this.isQuizMode) {
                         this.generateRandomGame();
@@ -761,7 +837,33 @@
                 }, 2000);
             }
         }
-        async fetchRankingData(){ try{ let res=await fetch(this.RANK_URL,{cache:'no-cache'}); if(!res.ok)return[]; let data=await res.json(); let subs=data.submissions||[]; let map=new Map(); subs.forEach(s=>{ let key=`${s.className||'未知'}|${s.studentName||'匿名'}`; let corr=s.correctAnswers||0; let t=s.totalTimeSeconds||0; if(!map.has(key)||corr>map.get(key).correct||(corr===map.get(key).correct&&t<map.get(key).totalTime)) map.set(key,{className:s.className,studentName:s.studentName,correct:corr,totalTime:t}); }); return Array.from(map.values()).sort((a,b)=>b.correct-a.correct||a.totalTime-b.totalTime); }catch(e){return[];} }
+        // 只取当天的提交记录
+        async fetchRankingData(){ 
+            try{ 
+                let res=await fetch(this.RANK_URL,{cache:'no-cache'}); 
+                if(!res.ok)return[]; 
+                let data=await res.json(); 
+                let subs=data.submissions||[]; 
+                // 过滤当天
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                subs = subs.filter(s => {
+                    if (!s.createdAt) return false;
+                    let date = new Date(s.createdAt);
+                    date.setHours(0,0,0,0);
+                    return date.getTime() === today.getTime();
+                });
+                let map=new Map(); 
+                subs.forEach(s=>{ 
+                    let key=`${s.className||'未知'}|${s.studentName||'匿名'}`; 
+                    let corr=s.correctAnswers||0; 
+                    let t=s.totalTimeSeconds||0; 
+                    if(!map.has(key)||corr>map.get(key).correct||(corr===map.get(key).correct&&t<map.get(key).totalTime)) 
+                        map.set(key,{className:s.className,studentName:s.studentName,correct:corr,totalTime:t}); 
+                }); 
+                return Array.from(map.values()).sort((a,b)=>b.correct-a.correct||a.totalTime-b.totalTime); 
+            }catch(e){return[];} 
+        }
         async updateGlobalRankAndMyCard(){ let list=await this.fetchRankingData(); renderGlobalRank(list); if(this.studentName && this.studentClass){ let myKey=`${this.studentClass}|${this.studentName}`; let rank=null,score=null; list.forEach((it,i)=>{ if(`${it.className}|${it.studentName}`===myKey){ rank=i+1; score=it; } }); let cont=document.getElementById('globalMyRankContent'); if(score){ cont.innerHTML=`<div class="my-info"><div class="my-name">${score.studentName}</div><div class="my-class">${score.className}</div></div><div class="my-stats"><span>✅ ${score.correct}/5</span><span>⏱️ ${score.totalTime}秒</span></div><div class="my-rank-badge">🏆 第${rank}名</div>`; } else { cont.innerHTML='<div class="no-score">📝 暂无记录</div>'; } } else { document.getElementById('globalMyRankContent').innerHTML='<div class="no-score">✨ 暂无成绩 ✨</div>'; } }
     }
 
@@ -773,7 +875,9 @@
             this.studentClass=''; this.studentName=''; this.layoutMode='row';
             this.autoSubmitTimer = null;
             this.shapeTypes=['circle','square','star','heart','diamond','pentagon']; this.currentShape='circle'; this.color1='#f39c12'; this.color2='#2ecc71';
-            this.API_BASE='https://quickform.cn/api/5ikm1lx5jl'; this.RANK_URL=this.API_BASE+'/all'; this.SUBMIT_URL=this.API_BASE;
+            this.API_BASE = 'https://wzkjgz.site/api/6pwvws38id';
+            this.RANK_URL = this.API_BASE + '/all';
+            this.SUBMIT_URL = this.API_BASE;
             this.visualDiv=document.getElementById('arithmeticVisual'); this.answerDisplay=document.getElementById('arithmeticAnswerDisplay'); this.resultDiv=document.getElementById('arithmeticResult');
             this.timerDiv=document.getElementById('arithmeticTimer'); this.quizPanel=document.getElementById('arithmeticQuizPanel'); this.progressSpan=document.getElementById('arithmeticProgress');
             this.keypadGrid=document.getElementById('arithmeticKeypad'); this.delBtn=document.getElementById('arithmeticDelBtn'); this.submitBtn=document.getElementById('arithmeticSubmitBtn');
@@ -844,7 +948,14 @@
         clearTimer(){ if(this.timerInterval){ clearInterval(this.timerInterval); this.timerInterval=null; } }
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
         startTimer(){ this.clearTimer(); this.startTime=Date.now(); this.updateTimerDisplay(); this.timerInterval=setInterval(()=>{ if(this.isQuizMode) this.updateTimerDisplay(); else this.clearTimer(); },1000); }
-        showStartModal(){ showModalForGame((cls,name)=>{ this.studentClass=cls; this.studentName=name; this.startQuizMode(); }); }
+        showStartModal() {
+            // 使用全局的白名单验证模态框
+            showModalForGame((cls, name) => {
+                this.studentClass = cls;
+                this.studentName = name;
+                this.startQuizMode();
+            });
+        }
         startQuizMode(){ 
             if(this.isQuizMode) return;
             stopRankAutoRefresh();
@@ -907,7 +1018,33 @@
                 }, 2000);
             }
         }
-        async fetchRankingData(){ try{ let res=await fetch(this.RANK_URL,{cache:'no-cache'}); if(!res.ok)return[]; let data=await res.json(); let subs=data.submissions||[]; let map=new Map(); subs.forEach(s=>{ let key=`${s.className||'未知'}|${s.studentName||'匿名'}`; let corr=s.correctAnswers||0; let t=s.totalTimeSeconds||0; if(!map.has(key)||corr>map.get(key).correct||(corr===map.get(key).correct&&t<map.get(key).totalTime)) map.set(key,{className:s.className,studentName:s.studentName,correct:corr,totalTime:t}); }); return Array.from(map.values()).sort((a,b)=>b.correct-a.correct||a.totalTime-b.totalTime); }catch(e){return[];} }
+        // 只取当天的提交记录
+        async fetchRankingData(){ 
+            try{ 
+                let res=await fetch(this.RANK_URL,{cache:'no-cache'}); 
+                if(!res.ok)return[]; 
+                let data=await res.json(); 
+                let subs=data.submissions||[]; 
+                // 过滤当天
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                subs = subs.filter(s => {
+                    if (!s.createdAt) return false;
+                    let date = new Date(s.createdAt);
+                    date.setHours(0,0,0,0);
+                    return date.getTime() === today.getTime();
+                });
+                let map=new Map(); 
+                subs.forEach(s=>{ 
+                    let key=`${s.className||'未知'}|${s.studentName||'匿名'}`; 
+                    let corr=s.correctAnswers||0; 
+                    let t=s.totalTimeSeconds||0; 
+                    if(!map.has(key)||corr>map.get(key).correct||(corr===map.get(key).correct&&t<map.get(key).totalTime)) 
+                        map.set(key,{className:s.className,studentName:s.studentName,correct:corr,totalTime:t}); 
+                }); 
+                return Array.from(map.values()).sort((a,b)=>b.correct-a.correct||a.totalTime-b.totalTime); 
+            }catch(e){return[];} 
+        }
         async updateGlobalRankAndMyCard(){ let list=await this.fetchRankingData(); renderGlobalRank(list); if(this.studentName && this.studentClass){ let myKey=`${this.studentClass}|${this.studentName}`; let rank=null,score=null; list.forEach((it,i)=>{ if(`${it.className}|${it.studentName}`===myKey){ rank=i+1; score=it; } }); let cont=document.getElementById('globalMyRankContent'); if(score){ cont.innerHTML=`<div class="my-info"><div class="my-name">${score.studentName}</div><div class="my-class">${score.className}</div></div><div class="my-stats"><span>✅ ${score.correct}/5</span><span>⏱️ ${score.totalTime}秒</span></div><div class="my-rank-badge">🏆 第${rank}名</div>`; } else { cont.innerHTML='<div class="no-score">📝 暂无记录</div>'; } } else { document.getElementById('globalMyRankContent').innerHTML='<div class="no-score">✨ 暂无成绩 ✨</div>'; } }
     }
 
