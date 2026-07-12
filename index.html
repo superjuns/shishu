@@ -670,6 +670,13 @@
     }
 
     // ================= 识数游戏类 =================
+
+    function getBeijingTodayStr() {
+        var d = new Date();
+        d.setTime(d.getTime() + 8 * 3600 * 1000);
+        return d.toISOString().slice(0, 10);
+    }
+
     class CountGame {
         constructor() {
             this.totalShapes = 3; this.currentShape = 'circle'; this.colsPerRow = 5;
@@ -881,15 +888,12 @@
                     const createdAt = item.createdAt || item.created_at || item.createTime || item.timestamp || null;
                     return { className, studentName, correct, totalTime, createdAt };
                 });
-                const today = new Date();
-                today.setHours(0,0,0,0);
+                const today = getBeijingTodayStr();
                 let filtered = mapped;
                 if (mapped.some(s => s.createdAt)) {
                     filtered = mapped.filter(s => {
                         if (!s.createdAt) return false;
-                        let date = new Date(s.createdAt);
-                        date.setHours(0,0,0,0);
-                        return date.getTime() === today.getTime();
+                        return String(s.createdAt).slice(0, 10) === today;
                     });
                 } else {
                     console.warn('⚠️ 识数数据无时间字段，显示全部');
@@ -1118,15 +1122,12 @@
                     const createdAt = item.createdAt || item.created_at || item.createTime || item.timestamp || null;
                     return { className, studentName, correct, totalTime, createdAt };
                 });
-                const today = new Date();
-                today.setHours(0,0,0,0);
+                const today = getBeijingTodayStr();
                 let filtered = mapped;
                 if (mapped.some(s => s.createdAt)) {
                     filtered = mapped.filter(s => {
                         if (!s.createdAt) return false;
-                        let date = new Date(s.createdAt);
-                        date.setHours(0,0,0,0);
-                        return date.getTime() === today.getTime();
+                        return String(s.createdAt).slice(0, 10) === today;
                     });
                 } else {
                     console.warn('⚠️ 算数数据无时间字段，显示全部');
