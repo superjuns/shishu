@@ -823,6 +823,7 @@
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
         startTimer(){ this.clearTimer(); this.startTime=Date.now(); this.updateTimerDisplay(); this.timerInterval=setInterval(()=>{ if(this.isQuizMode) this.updateTimerDisplay(); else this.clearTimer(); },1000); }
         showStartModal() { 
+            if(this.isQuizMode) { this.exitQuizMode(); return; }
             showModalForGame((cls, name) => {
                 this.studentClass = cls;
                 this.studentName = name;
@@ -834,6 +835,19 @@
             stopRankAutoRefresh();
             this.isQuizMode=true; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false;
             this.clearTimer(); this.isChecking=false; this.quizPanel.style.display='flex'; this.startTimer(); this.nextQuestion();
+            document.querySelector('.count-mode-action[data-action="showModal"]').textContent = '⏹ 结束答题';
+        }
+        exitQuizMode(){
+            if(!this.isQuizMode) return;
+            this.clearTimer();
+            this.isQuizMode=false; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false;
+            this.quizPanel.style.display='none';
+            this.resultDiv.innerHTML='已退出答题模式';
+            this.resultDiv.className='result';
+            this.generateRandomGame(); this.clearAnswer();
+            document.querySelector('.count-mode-action[data-action="showModal"]').textContent = '📋 答题模式';
+            startRankAutoRefresh();
+            refreshGlobalRankAndMyCard(activeGameType);
         }
         nextQuestion(){ if(!this.isQuizMode) return; this.quizCount++; if(this.quizCount>5){ this.finishQuiz(); return; } this.progressSpan.innerText=`📋 第${this.quizCount}/5题`; this.generateRandomGame(); this.clearAnswer(); this.resultDiv.innerHTML=''; this.resultDiv.className='result'; this.isChecking=false; }
         finishQuiz(){ 
@@ -1056,6 +1070,7 @@
         updateTimerDisplay(){ if(this.isQuizMode && this.startTime){ let elapsed=Math.floor((Date.now()-this.startTime)/1000); this.timerDiv.innerText=`⏱️ ${elapsed} 秒`; } }
         startTimer(){ this.clearTimer(); this.startTime=Date.now(); this.updateTimerDisplay(); this.timerInterval=setInterval(()=>{ if(this.isQuizMode) this.updateTimerDisplay(); else this.clearTimer(); },1000); }
         showStartModal() {
+            if(this.isQuizMode) { this.exitQuizMode(); return; }
             showModalForGame((cls, name) => {
                 this.studentClass = cls;
                 this.studentName = name;
@@ -1067,6 +1082,19 @@
             stopRankAutoRefresh();
             this.isQuizMode=true; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false;
             this.clearTimer(); this.quizPanel.style.display='flex'; this.startTimer(); this.nextQuestion();
+            document.querySelector('.arith-mode-action[data-action="showModal"]').textContent = '⏹ 结束答题';
+        }
+        exitQuizMode(){
+            if(!this.isQuizMode) return;
+            this.clearTimer();
+            this.isQuizMode=false; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false;
+            this.quizPanel.style.display='none';
+            this.resultDiv.innerHTML='已退出答题模式';
+            this.resultDiv.className='result';
+            this.randomizeStyle(); this.generateRandomArithmetic(); this.renderCurrentQuestion(); this.clearAnswer();
+            document.querySelector('.arith-mode-action[data-action="showModal"]').textContent = '📋 答题模式';
+            startRankAutoRefresh();
+            refreshGlobalRankAndMyCard(activeGameType);
         }
         nextQuestion(){ if(!this.isQuizMode) return; this.quizCount++; if(this.quizCount>5){ this.finishQuiz(); return; } this.progressSpan.innerText=`📋 第${this.quizCount}/5题`; this.randomizeStyle(); this.generateRandomArithmetic(); this.renderCurrentQuestion(); this.clearAnswer(); this.resultDiv.innerHTML=''; this.isChecking=false; }
         finishQuiz(){ 
