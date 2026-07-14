@@ -541,6 +541,30 @@
 
     // ---------- 白名单配置 ----------
     const WHITELIST_URL = 'https://wzkjgz.site/api/5tmbx2o6rg/all';
+
+    // URL参数自动登录工具函数
+    function getUrlParam(name) {
+        return new URLSearchParams(window.location.search).get(name) || '';
+    }
+    function normStr(s) {
+        return String(s || '').replace(/班/g, '').replace(/\s/g, '').toLowerCase();
+    }
+
+    // URL参数自动登录（平台跳转时免输入）
+    async function tryAutoLoginFromUrl() {
+        const cls = getUrlParam('class') || getUrlParam('cls') || getUrlParam('班级');
+        const name = getUrlParam('name') || getUrlParam('姓名');
+        if (!cls || !name) return false;
+        const clsNum = cls.replace(/班/g, '').trim();
+        const fullCls = /^\d+$/.test(clsNum) ? clsNum + '班' : cls;
+        try {
+            const isAllowed = await checkWhitelist(fullCls, name);
+            if (!isAllowed) return false;
+            localStorage.setItem('shishu_class', clsNum);
+            localStorage.setItem('shishu_name', name);
+            return true;
+        } catch (e) { return false; }
+    }
     let whitelistCache = null;
     let whitelistCacheTime = 0;
     const CACHE_TTL = 60000;
@@ -592,6 +616,17 @@
     }
 
     function showModalForGame(callback) {
+        // 如果已有登录信息，直接验证并开始
+        const savedClass = localStorage.getItem('shishu_class');
+        const savedName = localStorage.getItem('shishu_name');
+        if (savedClass && savedName) {
+            const fullCls = savedClass + '班';
+            checkWhitelist(fullCls, savedName).then(isAllowed => {
+                if (isAllowed && callback) callback(fullCls, savedName);
+            });
+            return;
+        }
+
         studentNameInput.value = '';
         classSelect.value = '1';
         whitelistErrorEl.style.display = 'none';
@@ -615,6 +650,10 @@
                 whitelistErrorEl.style.display = 'block';
                 return;
             }
+
+            // 保存登录信息
+            localStorage.setItem('shishu_class', classSelect.value);
+            localStorage.setItem('shishu_name', name);
 
             whitelistErrorEl.style.display = 'none';
             globalModal.style.display = 'none';
@@ -1176,6 +1215,9 @@
     document.getElementById('globalRankRefresh').onclick = () => refreshGlobalRankAndMyCard(activeGameType);
     switchGame('count');
     startRankAutoRefresh();
+    // URL参数自动登录（平台跳转时免输入）
+    tryAutoLoginFromUrl();
+
 </script>
 </body>
 </html>
