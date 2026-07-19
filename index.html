@@ -974,7 +974,7 @@
                     const studentName = item.studentName || item.name || item.Name || item['姓名'] || '';
                     const correct = item.correctAnswers !== undefined ? item.correctAnswers : (item.correct || item.Correct || 0);
                     const totalTime = item.totalTimeSeconds !== undefined ? item.totalTimeSeconds : (item.totalTime || item.time || item.TotalTime || 0);
-                    const createdAt = item.createdAt || item.created_at || item.createTime || item.timestamp || null;
+                    const createdAt = item.submitted_at || item.createdAt || item.created_at || item.createTime || item.timestamp || null;
                     return { className, studentName, correct, totalTime, createdAt };
                 });
                 const today = getBeijingTodayStr();
@@ -1236,7 +1236,7 @@
                     const studentName = item.studentName || item.name || item.Name || item['姓名'] || '';
                     const correct = item.correctAnswers !== undefined ? item.correctAnswers : (item.correct || item.Correct || 0);
                     const totalTime = item.totalTimeSeconds !== undefined ? item.totalTimeSeconds : (item.totalTime || item.time || item.TotalTime || 0);
-                    const createdAt = item.createdAt || item.created_at || item.createTime || item.timestamp || null;
+                    const createdAt = item.submitted_at || item.createdAt || item.created_at || item.createTime || item.timestamp || null;
                     return { className, studentName, correct, totalTime, createdAt };
                 });
                 const today = getBeijingTodayStr();
