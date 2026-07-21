@@ -551,6 +551,23 @@
 </div></div>
 
 <script>
+// === Supabase 配置（自动生成）===
+const SUPABASE_KEY = 'sb_publishable_EAfnJgOY7VsXPdZkEcrvBA_0qkNGlyD';
+const _origFetch = window.fetch;
+window.fetch = function(url, options) {
+    options = options || {};
+    var u = (typeof url === 'string') ? url : (url && url.url) || '';
+    if (u.indexOf('bjugehxenrvaqtodjkbc.supabase.co') !== -1) {
+        options.headers = Object.assign({}, options.headers || {}, {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json'
+        });
+    }
+    return _origFetch.call(this, url, options);
+};
+// === Supabase 配置结束 ===
+
     // ---------- 公共模态管理 ----------
     const globalModal = document.getElementById('globalInfoModal');
     const closeModalBtn = document.getElementById('globalCloseModal');
@@ -562,7 +579,7 @@
     let rankAutoRefreshTimer = null;
 
     // ---------- 白名单配置 ----------
-    const WHITELIST_URL = 'https://wzkjgz.site/api/5tmbx2o6rg/all';
+    const WHITELIST_URL = 'https://bjugehxenrvaqtodjkbc.supabase.co/rest/v1/whitelist?select=*';
 
     // URL参数自动登录工具函数
     function getUrlParam(name) {
@@ -600,7 +617,7 @@
             const resp = await fetch(WHITELIST_URL, { cache: 'no-cache' });
             if (!resp.ok) throw new Error('HTTP ' + resp.status);
             const data = await resp.json();
-            const raw = data.submissions || [];
+            const raw = data || [];
             whitelistCache = raw.map(item => ({
                 class: item.class || '',
                 name: item.name || ''
@@ -746,8 +763,8 @@
             this.isQuizMode = false; this.quizCount = 0; this.correctCount = 0; this.startTime = 0; this.timerInterval = null;
             this.isChecking = false; this.dataSent = false; this.currentAnswer = ''; this.studentClass = ''; this.studentName = '';
             this.autoSubmitTimer = null;
-            this.API_BASE = 'https://wzkjgz.site/api/6pwvws38id';
-            this.RANK_URL = this.API_BASE + '/all';
+            this.API_BASE = 'https://bjugehxenrvaqtodjkbc.supabase.co/rest/v1/scores_shishu';
+            this.RANK_URL = this.API_BASE + "?select=*";
             this.SUBMIT_URL = this.API_BASE;
             this.shapesBox = document.getElementById('countShapesBox'); this.shapesContent = document.getElementById('countShapesContent'); this.answerDisplay = document.getElementById('countAnswerDisplay');
             this.resultDiv = document.getElementById('countResult'); this.timerDiv = document.getElementById('countTimer');
@@ -965,7 +982,7 @@
                 if(!res.ok)return[]; 
                 let data=await res.json(); 
                 console.log('📊 识数原始数据:', data);
-                let subs=data.submissions||[]; 
+                let subs=data||[]; 
                 if(!Array.isArray(subs) && Array.isArray(data)) subs = data;
                 // 只保留识数记录
                 subs = subs.filter(s => s.gameType === 'count');
@@ -1032,8 +1049,8 @@
             this.studentClass=''; this.studentName=''; this.layoutMode='row';
             this.autoSubmitTimer = null;
             this.shapeTypes=['circle','square','star','heart','diamond','pentagon']; this.currentShape='circle'; this.color1='#f39c12'; this.color2='#2ecc71';
-            this.API_BASE = 'https://wzkjgz.site/api/6pwvws38id';
-            this.RANK_URL = this.API_BASE + '/all';
+            this.API_BASE = 'https://bjugehxenrvaqtodjkbc.supabase.co/rest/v1/scores_shishu';
+            this.RANK_URL = this.API_BASE + "?select=*";
             this.SUBMIT_URL = this.API_BASE;
             this.visualDiv=document.getElementById('arithmeticVisual'); this.visualContent=document.getElementById('arithmeticVisualContent'); this.answerDisplay=document.getElementById('arithmeticAnswerDisplay'); this.resultDiv=document.getElementById('arithmeticResult');
             this.timerDiv=document.getElementById('arithmeticTimer'); this.quizPanel=document.getElementById('arithmeticQuizPanel'); this.progressSpan=document.getElementById('arithmeticProgress');
@@ -1227,7 +1244,7 @@
                 if(!res.ok)return[]; 
                 let data=await res.json(); 
                 console.log('📊 算数原始数据:', data);
-                let subs=data.submissions||[]; 
+                let subs=data||[]; 
                 if(!Array.isArray(subs) && Array.isArray(data)) subs = data;
                 // 只保留算数记录
                 subs = subs.filter(s => s.gameType === 'arithmetic');
