@@ -926,7 +926,8 @@ window.fetch = function(url, options) {
                         correctAnswers:this.correctCount,
                         totalTimeSeconds:seconds,
                         totalQuestions:5,
-                        gameType:'count'   // 识数标识
+                        gameType:'count',   // 识数标识
+                        submitted_at:new Date().toISOString()
                     })
                 }); 
                 this.dataSent=true; 
