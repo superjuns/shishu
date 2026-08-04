@@ -454,6 +454,21 @@
         .modal-field label { font-weight: bold; color: #e67e22; display: block; margin-bottom: 5px; font-size: 0.9rem; }
         .modal-field select, .modal-field input { width: 100%; padding: 10px; border-radius: 50px; border: 2px solid #ffe0b5; font-size: 0.9rem; }
         .modal-buttons button { background: #a29bfe; color: white; border: none; padding: 8px 18px; border-radius: 50px; font-weight: bold; cursor: pointer; }
+
+        /* 一起数学 · 系列统一身份信息弹窗 */
+        .global-modal.yiqi-identity-overlay { padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom)); background:rgba(0,0,0,.30); backdrop-filter:blur(8px) saturate(120%); -webkit-backdrop-filter:blur(8px) saturate(120%); }
+        .modal-card.yiqi-identity-card { width:min(100%,420px); max-width:420px; max-height:calc(100svh - 36px); overflow-y:auto; padding:28px 28px 24px; border:1px solid rgba(0,0,0,.06); border-radius:24px; background:rgba(255,255,255,.98); box-shadow:0 24px 70px rgba(0,0,0,.22); color:#1d1d1f; text-align:left; }
+        .yiqi-identity-header { margin-bottom:22px; text-align:center; }
+        .modal-card .yiqi-identity-title { margin:0; color:#1d1d1f; font-size:28px; line-height:1.15; letter-spacing:-.02em; }
+        .yiqi-identity-description { margin:10px 0 0; color:#6e6e73; font-size:14px; line-height:1.55; }
+        .modal-card .yiqi-identity-field { display:block; margin:16px 0 0; color:#1d1d1f; font-size:15px; font-weight:600; }
+        .modal-card .yiqi-identity-field select,.modal-card .yiqi-identity-field input { width:100%; height:50px; margin-top:8px; padding:0 14px; border:1px solid #d2d2d7; border-radius:14px; outline:none; background:#fff; color:#1d1d1f; font:inherit; font-weight:400; transition:border-color 160ms ease,box-shadow 160ms ease; }
+        .modal-card .yiqi-identity-field select:focus,.modal-card .yiqi-identity-field input:focus { border-color:#007aff; box-shadow:0 0 0 4px rgba(0,122,255,.12); }
+        .modal-card .yiqi-identity-primary,.modal-card .yiqi-identity-secondary { width:100%; min-height:50px; border:0; border-radius:14px; cursor:pointer; }
+        .modal-card .yiqi-identity-primary { margin-top:22px; background:#007aff; color:#fff; font-size:17px; font-weight:700; box-shadow:0 8px 20px rgba(0,122,255,.18); }
+        .modal-card .yiqi-identity-secondary { margin-top:8px; background:transparent; color:#6e6e73; font-size:15px; font-weight:500; }
+        .modal-card .yiqi-identity-primary:active,.modal-card .yiqi-identity-secondary:active { transform:scale(.97); transition:transform 100ms ease-out; }
+        @media(max-width:480px){.modal-card.yiqi-identity-card{padding:24px 20px 18px;border-radius:22px}.modal-card .yiqi-identity-title{font-size:25px}}
         /* 内联错误提示 */
         .whitelist-error {
             color: #d63031;
@@ -569,12 +584,14 @@
 </div>
 
 <!-- 共用模态框 -->
-<div id="globalInfoModal" class="global-modal"><div class="modal-card"><button class="close-modal-btn" id="globalCloseModal">×</button><h3>✏️ 小小数学家</h3>
-    <div class="modal-field"><label>📚 班级：</label><select id="globalClassSelect"><option value="1">1班</option><option value="2">2班</option><option value="3">3班</option><option value="4">4班</option><option value="5">5班</option><option value="6">6班</option><option value="7">7班</option></select></div>
-    <div class="modal-field"><label>👧 姓名：</label><input type="text" id="globalStudentName" placeholder="你的名字" maxlength="20"></div>
+<div id="globalInfoModal" class="global-modal yiqi-identity-overlay" role="dialog" aria-modal="true" aria-labelledby="shishuIdentityTitle"><div class="modal-card yiqi-identity-card">
+    <div class="yiqi-identity-header"><h3 class="yiqi-identity-title" id="shishuIdentityTitle">✏️ 答题挑战</h3><p class="yiqi-identity-description">选择班级并输入姓名，开始一眼识数挑战</p></div>
+    <label class="yiqi-identity-field">班级<select id="globalClassSelect"><option value="1">1班</option><option value="2">2班</option><option value="3">3班</option><option value="4">4班</option><option value="5">5班</option><option value="6">6班</option><option value="7">7班</option></select></label>
+    <label class="yiqi-identity-field">姓名<input type="text" id="globalStudentName" placeholder="请输入姓名" maxlength="20" autocomplete="name"></label>
     <div class="modal-buttons">
-        <button id="globalConfirmQuizBtn" data-yiqi-action="answer">开始挑战 ✨</button>
-        <div id="whitelistError" class="whitelist-error">❌ 未在白名单中，无法进入答题模式。请联系老师添加。</div>
+        <div id="whitelistError" class="whitelist-error" role="status">❌ 未在白名单中，无法进入答题模式。请联系老师添加。</div>
+        <button id="globalConfirmQuizBtn" class="yiqi-identity-primary" data-yiqi-action="answer">开始答题</button>
+        <button type="button" class="yiqi-identity-secondary" id="globalCancelModal">取消</button>
     </div>
 </div></div>
 
@@ -598,7 +615,7 @@ window.fetch = function(url, options) {
 
     // ---------- 公共模态管理 ----------
     const globalModal = document.getElementById('globalInfoModal');
-    const closeModalBtn = document.getElementById('globalCloseModal');
+    const closeModalBtn = document.getElementById('globalCancelModal');
     const classSelect = document.getElementById('globalClassSelect');
     const studentNameInput = document.getElementById('globalStudentName');
     const confirmQuizBtn = document.getElementById('globalConfirmQuizBtn');
@@ -737,6 +754,9 @@ window.fetch = function(url, options) {
     }
     closeModalBtn.onclick = closeGlobalModal;
     globalModal.addEventListener('click', (e) => { if(e.target === globalModal) closeGlobalModal(); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && globalModal.style.display === 'flex') closeGlobalModal();
+    });
 
     function renderGlobalRank(rankList) {
         const row1 = document.getElementById('globalRankRow1'), row2 = document.getElementById('globalRankRow2');
