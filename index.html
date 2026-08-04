@@ -484,9 +484,32 @@
             .inline-btn { width: 42px; height: 42px; }
             .answer-display { font-size: 1.3rem; padding: 8px 10px; min-height: 52px; }
         }
+    <style id="yiqi-series-shishu">
+        :root { --yiqi-blue:#007aff; --yiqi-ink:#1d1d1f; --yiqi-muted:#86868b; --yiqi-paper:#f5f5f7; --yiqi-soft:#f2f2f7; --yiqi-surface:#fff; --yiqi-accent:#ff9f0a; }
+        html, body { background:var(--yiqi-paper)!important; color:var(--yiqi-ink)!important; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif!important; }
+        .master-container { max-width:760px!important; margin:0 auto!important; padding:12px 12px calc(24px + env(safe-area-inset-bottom))!important; }
+        .tab-bar { background:#e5e5ea!important; border-radius:16px!important; padding:4px!important; box-shadow:none!important; }
+        .tab-btn { min-height:44px!important; border-radius:12px!important; background:transparent!important; color:var(--yiqi-muted)!important; box-shadow:none!important; }
+        .tab-btn.active { background:#fff!important; color:var(--yiqi-ink)!important; box-shadow:0 1px 4px rgba(0,0,0,.09)!important; }
+        .game-panel, .global-rank-area { background:var(--yiqi-surface)!important; border:0!important; border-radius:24px!important; box-shadow:0 10px 32px rgba(0,0,0,.06)!important; }
+        .title { color:var(--yiqi-ink)!important; text-shadow:none!important; }
+        .top-btn, .inline-btn, #globalConfirmQuizBtn, .rank-refresh { min-height:44px!important; border:1px solid transparent!important; border-radius:14px!important; box-shadow:none!important; transform:none!important; transition:transform 120ms cubic-bezier(.23,1,.32,1),background-color 160ms ease!important; }
+        .top-btn:active, .inline-btn:active, #globalConfirmQuizBtn:active { transform:scale(.97)!important; }
+        .btn-red, #globalConfirmQuizBtn, .submit-inline { background:var(--yiqi-blue)!important; color:#fff!important; border-color:var(--yiqi-blue)!important; }
+        .btn-blue, .btn-purple, .del-btn, .rank-refresh { background:var(--yiqi-soft)!important; color:var(--yiqi-ink)!important; }
+        .del-btn { color:#c9342a!important; background:#fff1ef!important; }
+        .quiz-panel { background:var(--yiqi-soft)!important; border-radius:16px!important; }
+        .time, .quiz-progress { background:#fff!important; color:var(--yiqi-ink)!important; border-radius:12px!important; }
+        .answer-display { border:1px solid #d7d7dc!important; border-radius:16px!important; background:var(--yiqi-soft)!important; color:var(--yiqi-ink)!important; }
+        .num-btn { min-width:44px!important; min-height:52px!important; width:auto!important; height:auto!important; border:0!important; border-radius:15px!important; background:var(--yiqi-soft)!important; color:var(--yiqi-ink)!important; box-shadow:none!important; transform:none!important; }
+        .num-btn:active { transform:scale(.97)!important; }
+        .global-modal { background:rgba(0,0,0,.28)!important; backdrop-filter:blur(4px)!important; }
+        .modal-card { border-radius:24px!important; box-shadow:0 28px 80px rgba(0,0,0,.22)!important; }
+        @media(max-width:480px){ .master-container{padding-left:10px!important;padding-right:10px!important}.num-btn{min-height:50px!important} }
+        @media(prefers-reduced-motion:reduce){ *,*:before,*:after{transition:none!important}.top-btn:active,.inline-btn:active,#globalConfirmQuizBtn:active,.num-btn:active{transform:none!important} }
     </style>
 </head>
-<body>
+<body data-yiqi-game="shishu" style="--yiqi-accent:#ff9f0a">
 <div class="master-container">
     <div class="tab-bar">
         <button class="tab-btn" data-game="count">🔢 识数</button>
@@ -496,10 +519,10 @@
     <!-- 识数面板 -->
     <div id="countGamePanel" class="game-panel">
         <div class="title">✨一眼识数</div>
-        <div class="top-buttons-row"><button class="top-btn btn-red count-mode-action" data-action="showModal">📋 答题模式</button></div>
+        <div class="top-buttons-row"><button class="top-btn btn-red count-mode-action" data-action="showModal" data-yiqi-action="answer">📋 答题模式</button></div>
         <div class="top-buttons-row-bottom">
-            <button class="top-btn btn-blue count-mode-action" data-action="changeLayout">🎨 换排法</button>
-            <button class="top-btn btn-purple count-mode-action" data-action="reset">🔄 新的一局</button>
+            <button class="top-btn btn-blue count-mode-action" data-action="changeLayout" data-yiqi-action="secondary">🎨 换排法</button>
+            <button class="top-btn btn-purple count-mode-action" data-action="reset" data-yiqi-action="secondary">🔄 新的一局</button>
         </div>
         <div class="shapes-box" id="countShapesBox"><div class="shapes-content" id="countShapesContent"></div></div>
         <div class="quiz-panel" id="countQuizPanel" style="display: none;">
@@ -508,7 +531,7 @@
         </div>
         <div class="answer-row">
             <div class="answer-display" id="countAnswerDisplay">0</div>
-            <div class="inline-buttons"><button class="inline-btn del-btn" id="countDelBtn">⌫</button><button class="inline-btn submit-inline" id="countSubmitBtn">提交</button></div>
+            <div class="inline-buttons"><button class="inline-btn del-btn" id="countDelBtn" data-yiqi-action="icon" aria-label="删除">⌫</button><button class="inline-btn submit-inline" id="countSubmitBtn" data-yiqi-action="answer">提交</button></div>
         </div>
         <div class="keypad-grid" id="countKeypad"></div>
         <div class="result" id="countResult"></div>
@@ -517,17 +540,17 @@
     <!-- 算数面板 -->
     <div id="arithmeticGamePanel" class="game-panel">
         <div class="title">🧮 一眼算数</div>
-        <div class="top-buttons-row"><button class="top-btn btn-red arith-mode-action" data-action="showModal">📋 答题模式</button></div>
+        <div class="top-buttons-row"><button class="top-btn btn-red arith-mode-action" data-action="showModal" data-yiqi-action="answer">📋 答题模式</button></div>
         <div class="top-buttons-row-bottom">
-            <button class="top-btn btn-blue arith-mode-action" data-action="changeLayout">🎨 变排法</button>
-            <button class="top-btn btn-purple arith-mode-action" data-action="reset">🔄 新的一局</button>
+            <button class="top-btn btn-blue arith-mode-action" data-action="changeLayout" data-yiqi-action="secondary">🎨 变排法</button>
+            <button class="top-btn btn-purple arith-mode-action" data-action="reset" data-yiqi-action="secondary">🔄 新的一局</button>
         </div>
         <div class="math-visual" id="arithmeticVisual"><div class="math-visual-content" id="arithmeticVisualContent"></div></div>
         <div class="quiz-panel" id="arithmeticQuizPanel" style="display: none;">
             <div class="time" id="arithmeticTimer">⏱️ 0 秒</div>
             <div class="quiz-progress" id="arithmeticProgress">第1 / 5题</div>
         </div>
-        <div class="answer-row"><div class="answer-display" id="arithmeticAnswerDisplay">0</div><div class="inline-buttons"><button class="inline-btn del-btn" id="arithmeticDelBtn">⌫</button><button class="inline-btn submit-inline" id="arithmeticSubmitBtn">提交</button></div></div>
+        <div class="answer-row"><div class="answer-display" id="arithmeticAnswerDisplay">0</div><div class="inline-buttons"><button class="inline-btn del-btn" id="arithmeticDelBtn" data-yiqi-action="icon" aria-label="删除">⌫</button><button class="inline-btn submit-inline" id="arithmeticSubmitBtn" data-yiqi-action="answer">提交</button></div></div>
         <div class="keypad-grid" id="arithmeticKeypad"></div>
         <div class="result" id="arithmeticResult"></div>
     </div>
@@ -545,7 +568,7 @@
     <div class="modal-field"><label>📚 班级：</label><select id="globalClassSelect"><option value="1">1班</option><option value="2">2班</option><option value="3">3班</option><option value="4">4班</option><option value="5">5班</option><option value="6">6班</option><option value="7">7班</option></select></div>
     <div class="modal-field"><label>👧 姓名：</label><input type="text" id="globalStudentName" placeholder="你的名字" maxlength="20"></div>
     <div class="modal-buttons">
-        <button id="globalConfirmQuizBtn">开始挑战 ✨</button>
+        <button id="globalConfirmQuizBtn" data-yiqi-action="answer">开始挑战 ✨</button>
         <div id="whitelistError" class="whitelist-error">❌ 未在白名单中，无法进入答题模式。请联系老师添加。</div>
     </div>
 </div></div>
@@ -888,7 +911,9 @@ window.fetch = function(url, options) {
             stopRankAutoRefresh();
             this.isQuizMode=true; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false;
             this.clearTimer(); this.isChecking=false; this.quizPanel.style.display='flex'; this.startTimer(); this.nextQuestion();
-            document.querySelector('.count-mode-action[data-action="showModal"]').textContent = '⏹ 结束答题';
+            const countModeButton = document.querySelector('.count-mode-action[data-action="showModal"]');
+            countModeButton.textContent = '⏹ 结束答题';
+            countModeButton.dataset.yiqiAction = 'danger';
         }
         exitQuizMode(){
             if(!this.isQuizMode) return;
@@ -898,7 +923,9 @@ window.fetch = function(url, options) {
             this.resultDiv.innerHTML='已退出答题模式';
             this.resultDiv.className='result';
             this.generateRandomGame(); this.clearAnswer();
-            document.querySelector('.count-mode-action[data-action="showModal"]').textContent = '📋 答题模式';
+            const countModeButton = document.querySelector('.count-mode-action[data-action="showModal"]');
+            countModeButton.textContent = '📋 答题模式';
+            countModeButton.dataset.yiqiAction = 'answer';
             startRankAutoRefresh();
             refreshGlobalRankAndMyCard(activeGameType);
         }
@@ -1150,7 +1177,9 @@ window.fetch = function(url, options) {
             stopRankAutoRefresh();
             this.isQuizMode=true; this.quizCount=0; this.correctCount=0; this.startTime=0; this.dataSent=false;
             this.clearTimer(); this.quizPanel.style.display='flex'; this.startTimer(); this.nextQuestion();
-            document.querySelector('.arith-mode-action[data-action="showModal"]').textContent = '⏹ 结束答题';
+            const arithModeButton = document.querySelector('.arith-mode-action[data-action="showModal"]');
+            arithModeButton.textContent = '⏹ 结束答题';
+            arithModeButton.dataset.yiqiAction = 'danger';
         }
         exitQuizMode(){
             if(!this.isQuizMode) return;
@@ -1160,7 +1189,9 @@ window.fetch = function(url, options) {
             this.resultDiv.innerHTML='已退出答题模式';
             this.resultDiv.className='result';
             this.randomizeStyle(); this.generateRandomArithmetic(); this.renderCurrentQuestion(); this.clearAnswer();
-            document.querySelector('.arith-mode-action[data-action="showModal"]').textContent = '📋 答题模式';
+            const arithModeButton = document.querySelector('.arith-mode-action[data-action="showModal"]');
+            arithModeButton.textContent = '📋 答题模式';
+            arithModeButton.dataset.yiqiAction = 'answer';
             startRankAutoRefresh();
             refreshGlobalRankAndMyCard(activeGameType);
         }
