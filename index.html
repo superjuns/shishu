@@ -991,13 +991,15 @@ window.fetch = function(url, options) {
         }
         nextQuestion(){ if(!this.isQuizMode) return; this.quizCount++; if(this.quizCount>5){ this.finishQuiz(); return; } this.progressSpan.innerText=`📋 第${this.quizCount}/5题`; this.generateRandomGame(); this.clearAnswer(); this.resultDiv.innerHTML=''; this.resultDiv.className='result'; this.isChecking=false; }
         finishQuiz(){ 
-            this.clearTimer(); let totalSec=this.startTime?Math.floor((Date.now()-this.startTime)/1000):0; this.sendResult(totalSec); 
-            let msg=`${this.studentName}（${this.studentClass}）答对 ${this.correctCount}/5 题，用时 ${totalSec} 秒`; if(this.correctCount===5) msg=`🎉🎉 ${this.studentName}（${this.studentClass}）全对！ 用时 ${totalSec} 秒 🎉🎉`; 
+            this.clearTimer(); let totalSec=this.startTime?Math.floor((Date.now()-this.startTime)/1000):0; const finalCorrect=this.correctCount; this.sendResult(totalSec);
+            const feedback = window.__yiqiSdkBridge && window.__yiqiSdkBridge.feedback;
+            if(feedback) feedback.complete({ score:finalCorrect, total:5, elapsed:totalSec, gameType:'count' });
+            let msg=`${this.studentName}（${this.studentClass}）答对 ${finalCorrect}/5 题，用时 ${totalSec} 秒`; if(finalCorrect===5) msg=`🎉🎉 ${this.studentName}（${this.studentClass}）全对！ 用时 ${totalSec} 秒 🎉🎉`;
             this.resultDiv.innerHTML=msg; this.resultDiv.className='result correct'; 
             this.isQuizMode=false; this.quizPanel.style.display='none'; this.quizCount=0; this.correctCount=0; this.startTime=0; 
             this.generateRandomGame(); this.clearAnswer(); 
             setTimeout(()=>{ if(this.resultDiv.innerHTML===msg) this.resultDiv.innerHTML='';},4000); 
-            if(this.onQuizFinish) this.onQuizFinish({correct:this.correctCount, totalTime:totalSec});
+            if(this.onQuizFinish) this.onQuizFinish({correct:finalCorrect, totalTime:totalSec});
             startRankAutoRefresh();
             refreshGlobalRankAndMyCard(activeGameType);
         }
@@ -1034,9 +1036,16 @@ window.fetch = function(url, options) {
                 return; 
             }
             let isCorrect=(val===this.totalShapes); 
+            const feedback = window.__yiqiSdkBridge && window.__yiqiSdkBridge.feedback;
+            if(isCorrect){
+                if(feedback) feedback.correct({ answer:val, expected:this.totalShapes, gameType:'count' });
+            } else if(feedback){
+                feedback.wrong({ answer:val, expected:this.totalShapes, gameType:'count' });
+            }
             if(this.isQuizMode){ 
                 this.isChecking=true; 
                 if(isCorrect) this.correctCount++; 
+                if(feedback) feedback.progress({ completed:this.quizCount, total:5, correct:this.correctCount });
                 this.nextQuestion(); 
                 setTimeout(()=>{this.isChecking=false;},200); 
                 return; 
@@ -1257,13 +1266,15 @@ window.fetch = function(url, options) {
         }
         nextQuestion(){ if(!this.isQuizMode) return; this.quizCount++; if(this.quizCount>5){ this.finishQuiz(); return; } this.progressSpan.innerText=`📋 第${this.quizCount}/5题`; this.randomizeStyle(); this.generateRandomArithmetic(); this.renderCurrentQuestion(); this.clearAnswer(); this.resultDiv.innerHTML=''; this.isChecking=false; }
         finishQuiz(){ 
-            this.clearTimer(); let totalSec=this.startTime?Math.floor((Date.now()-this.startTime)/1000):0; this.sendResult(totalSec); 
-            let msg=`${this.studentName}（${this.studentClass}）答对${this.correctCount}/5题，用时${totalSec}秒`; if(this.correctCount===5) msg=`🎉🎉 ${this.studentName}（${this.studentClass}）全对！ ${totalSec}秒 🎉🎉`; 
+            this.clearTimer(); let totalSec=this.startTime?Math.floor((Date.now()-this.startTime)/1000):0; const finalCorrect=this.correctCount; this.sendResult(totalSec);
+            const feedback = window.__yiqiSdkBridge && window.__yiqiSdkBridge.feedback;
+            if(feedback) feedback.complete({ score:finalCorrect, total:5, elapsed:totalSec, gameType:'arithmetic' });
+            let msg=`${this.studentName}（${this.studentClass}）答对${finalCorrect}/5题，用时${totalSec}秒`; if(finalCorrect===5) msg=`🎉🎉 ${this.studentName}（${this.studentClass}）全对！ ${totalSec}秒 🎉🎉`;
             this.resultDiv.innerHTML=msg; this.resultDiv.className='result correct'; 
             this.isQuizMode=false; this.quizPanel.style.display='none'; this.quizCount=0; this.correctCount=0; this.startTime=0; 
             this.randomizeStyle(); this.generateRandomArithmetic(); this.renderCurrentQuestion(); this.clearAnswer(); 
             setTimeout(()=>{ if(this.resultDiv.innerHTML===msg) this.resultDiv.innerHTML='';},4000); 
-            if(this.onQuizFinish) this.onQuizFinish({correct:this.correctCount, totalTime:totalSec});
+            if(this.onQuizFinish) this.onQuizFinish({correct:finalCorrect, totalTime:totalSec});
             startRankAutoRefresh();
             refreshGlobalRankAndMyCard(activeGameType);
         }
@@ -1299,9 +1310,16 @@ window.fetch = function(url, options) {
                 return; 
             }
             let isCorrect=(val===this.correctAnswer); 
+            const feedback = window.__yiqiSdkBridge && window.__yiqiSdkBridge.feedback;
+            if(isCorrect){
+                if(feedback) feedback.correct({ answer:val, expected:this.correctAnswer, gameType:'arithmetic' });
+            } else if(feedback){
+                feedback.wrong({ answer:val, expected:this.correctAnswer, gameType:'arithmetic' });
+            }
             if(this.isQuizMode){ 
                 this.isChecking=true; 
                 if(isCorrect) this.correctCount++; 
+                if(feedback) feedback.progress({ completed:this.quizCount, total:5, correct:this.correctCount });
                 this.nextQuestion(); 
                 setTimeout(()=>{this.isChecking=false;},200); 
                 return; 
