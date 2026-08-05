@@ -827,6 +827,11 @@ window.fetch = function(url, options) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelector(`.tab-btn[data-game="${type}"]`).classList.add('active');
         document.getElementById('globalRankTitle').textContent = type==='count'?'今日识数排行榜':'今日算数排行榜';
+        // 面板由隐藏切为可见后再测量，避免首次进入时用 0×0 容器计算缩放。
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            if(type === 'count' && window.countGame) window.countGame.fitShapesToBox();
+            if(type === 'arithmetic' && window.arithmeticGame) window.arithmeticGame.fitVisualToBox();
+        }));
         refreshGlobalRankAndMyCard(type);
     }
 
@@ -935,8 +940,10 @@ window.fetch = function(url, options) {
             content.style.transform = 'scale(1)';
             const boxW = box.clientWidth - 20;
             const boxH = box.clientHeight - 20;
+            if (boxW <= 0 || boxH <= 0) return;
             const contentW = content.offsetWidth;
             const contentH = content.offsetHeight;
+            if (contentW <= 0 || contentH <= 0) return;
             if (contentW <= boxW && contentH <= boxH) return;
             const scale = Math.min(boxW / contentW, boxH / contentH);
             content.style.transform = `scale(${scale})`;
@@ -1211,8 +1218,10 @@ window.fetch = function(url, options) {
             content.style.transform = 'scale(1)';
             const boxW = box.clientWidth - 20;
             const boxH = box.clientHeight - 20;
+            if (boxW <= 0 || boxH <= 0) return;
             const contentW = content.offsetWidth;
             const contentH = content.offsetHeight;
+            if (contentW <= 0 || contentH <= 0) return;
             if (contentW <= boxW && contentH <= boxH) return;
             const scale = Math.min(boxW / contentW, boxH / contentH);
             content.style.transform = `scale(${scale})`;
@@ -1419,6 +1428,12 @@ window.fetch = function(url, options) {
     document.querySelectorAll('.tab-btn[data-game]').forEach(btn => btn.addEventListener('click', () => switchGame(btn.dataset.game)));
     document.getElementById('globalRankRefresh').onclick = () => refreshGlobalRankAndMyCard(activeGameType);
     switchGame('count');
+    window.addEventListener('resize', () => {
+        requestAnimationFrame(() => {
+            if(activeGameType === 'count' && window.countGame) window.countGame.fitShapesToBox();
+            if(activeGameType === 'arithmetic' && window.arithmeticGame) window.arithmeticGame.fitVisualToBox();
+        });
+    }, { passive:true });
     startRankAutoRefresh();
     // URL参数自动登录（平台跳转时免输入）
     tryAutoLoginFromUrl();
